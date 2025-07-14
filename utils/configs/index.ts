@@ -61,7 +61,10 @@ export const chain1Mainnet = defineChain({
   },
 });
 
-export const chain1TestnetBetContract = "0x8E2EBeD0F10235a0F58152F140D9b043c34dB017";
+// export const BACKEND_URL = ''
+export const BACKEND_URL = 'http://localhost:7777/api'
+
+export const chain1TestnetBetContract = "0x1610D4E1F3e6f7A487cf27dc59c5694bbd74d951";
 export const chain1MainnetBetContract = "";
 
 export const chain2TestnetBetContract = "";

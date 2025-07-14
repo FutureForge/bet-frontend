@@ -16,8 +16,8 @@ import { useUserChainInfo } from "../query";
 import BetContractABI from "./abi/bet-contract.json";
 
 export enum Chains {
-  BNB = "bnb",
   CROSSFI = "crossfi",
+  BNB = "bnb",
 }
 
 export const chains: {
@@ -27,6 +27,13 @@ export const chains: {
   { id: 4157, chain: Chains.CROSSFI },
   { id: 97, chain: Chains.BNB },
 ];
+
+export const providerChain1 = new ethers.JsonRpcProvider(chain1.rpc);
+export const providerChain2 = new ethers.JsonRpcProvider(chain2.rpc);
+
+export function getChain(chainId: number) {
+  return chains.find((chain) => chain.id === chainId);
+}
 
 export function getChainInfoById(chainId: number) {
   const chainEntry = chains.find((chain) => chain.id === chainId);
@@ -44,21 +51,12 @@ export function getChainInfoById(chainId: number) {
   throw new Error(`Unsupported chain: ${chainEntry.chain}`);
 }
 
-export const providerChain1 = new ethers.providers.JsonRpcProvider(chain1.rpc);
-export const providerChain2 = new ethers.providers.JsonRpcProvider(chain2.rpc);
-
-export function getBetContractActiveChain() {
-  const { activeChain } = useUserChainInfo();
-
-  if (!activeChain?.id) {
-    throw new Error("No active chain found");
-  }
-
-  const chain = getChainInfoById(activeChain.id);
-  const chainEntry = chains.find((chain) => chain.id === activeChain.id);
+export function getBetContractActiveChain(chainId: number) {
+  const chain = getChainInfoById(chainId);
+  const chainEntry = chains.find((chain) => chain.id === chainId);
 
   if (!chainEntry) {
-    throw new Error(`Unsupported chain ID: ${activeChain.id}`);
+    throw new Error(`Unsupported chain ID: ${chainId}`);
   }
 
   let chainContract: string;
@@ -129,14 +127,14 @@ export function getContractCustom({
 
 export function decimalOffChain(number: bigint | string | number) {
   if (!number) return;
-  const value = ethers.utils.formatEther(number);
+  const value = ethers.formatEther(number);
 
   return value;
 }
 
 export function decimalOnChain(number: bigint | string | number) {
   if (!number) return;
-  const value = ethers.utils.parseEther(number.toString());
+  const value = ethers.parseEther(number.toString());
 
   return value;
 }

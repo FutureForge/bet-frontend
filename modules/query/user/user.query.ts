@@ -1,5 +1,5 @@
 import { Chains, getChainInfoById } from "@/modules/blockchain";
-import { client } from "@/utils/configs";
+import { BACKEND_URL, client } from "@/utils/configs";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   useActiveAccount,
@@ -7,6 +7,8 @@ import {
   useWalletBalance,
   useActiveWalletChain,
 } from "thirdweb/react";
+import { queryKeys } from "../query-keys";
+import axios from "axios";
 
 export function useUserChainInfo() {
   const account = useActiveAccount();
@@ -26,7 +28,7 @@ export function getUserNativeBalance() {
     try {
       chainInfo = getChainInfoById(activeChain.id);
     } catch (error) {
-      console.error("Unsupported chain:", error);
+      // console.error("Unsupported chain:", error);
     }
   }
 
@@ -49,12 +51,43 @@ export function getUserNativeBalance() {
   return { balanceData, isBalanceLoading, isBalanceError };
 }
 
-export function useQueryExample() {
+export function useUserDBQuery() {
+  const { account } = useUserChainInfo();
+  const userAddress = account?.address;
+
   return useQuery({
-    queryKey: ["user"],
-    queryFn: async () => {},
-    initialData: null,
-    enabled: true,
+    queryKey: [queryKeys.user.saveUser, { userAddress }],
+    queryFn: async () => {
+      try {
+        const res = await axios.get(
+          `${BACKEND_URL}/users/address/${userAddress}`
+        );
+        return res.data;
+      } catch (error: any) {
+
+        // Check if it's a 502 error with "user doesn't exist" message
+        if (
+          error.response?.status === 502 &&
+          error.response?.data?.message?.includes("User doesnt exist")
+        ) {
+          try {
+            const createUserRes = await axios.post(`${BACKEND_URL}/users`, {
+              address: userAddress,
+            });
+
+            return createUserRes.data;
+          } catch (createError) {
+            // console.error("Failed to create user:", createError);
+            throw createError;
+          }
+        }
+
+        throw error;
+      }
+    },
+    enabled: !!userAddress,
     refetchInterval: 5000,
   });
 }
+
+// 0x1234567890abcdef1234567890abcdef12345678

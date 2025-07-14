@@ -7,6 +7,7 @@ import { ConnectButton } from "thirdweb/react";
 import { createWallet } from "thirdweb/wallets";
 import { useDisableScroll } from "../../hooks/useDisableScroll";
 import { chain1, chain2, client } from "@/utils/configs";
+import { useUserDBQuery } from "@/modules/query";
 
 const Nav_Links = [
   {
@@ -16,6 +17,8 @@ const Nav_Links = [
 ];
 
 export function Nav() {
+  const { data: userDb } = useUserDBQuery();
+
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 

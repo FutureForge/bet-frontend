@@ -1,3 +1,5 @@
+export * from "./bet/bet.mutation";
+
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 // syntax
 export function useMutationExample() {
