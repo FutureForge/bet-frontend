@@ -6,7 +6,7 @@ import { cn } from "../../utils";
 import { ConnectButton } from "thirdweb/react";
 import { createWallet } from "thirdweb/wallets";
 import { useDisableScroll } from "../../hooks/useDisableScroll";
-import { chainInfo, client } from "@/utils/configs";
+import { chain1, chain2, client } from "@/utils/configs";
 
 const Nav_Links = [
   {
@@ -43,7 +43,7 @@ export function Nav() {
       <div className="lg:w-1/5 w-1/2 flex lg:items-center justify-end lg:gap-6 gap-2 ">
         <ConnectButton
           client={client}
-          chain={chainInfo}
+          chains={[chain1, chain2]}
           wallets={[createWallet("io.metamask")]}
           connectButton={{
             label: "Connect Wallet",

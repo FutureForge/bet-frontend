@@ -61,8 +61,21 @@ export const chain1Mainnet = defineChain({
   },
 });
 
+export const chain1TestnetBetContract = "0x8E2EBeD0F10235a0F58152F140D9b043c34dB017";
+export const chain1MainnetBetContract = "";
+
+export const chain2TestnetBetContract = "";
+export const chain2MainnetBetContract = "";
+
 export const chain2Testnet = bscTestnet;
 export const chain2Mainnet = bsc;
 
 export const chain1 = IS_TESTNET ? chain1Testnet : chain1Mainnet;
 export const chain2 = IS_TESTNET ? chain2Testnet : chain2Mainnet;
+
+export const chain1Contract = IS_TESTNET
+  ? chain1TestnetBetContract
+  : chain1MainnetBetContract;
+export const chain2Contract = IS_TESTNET
+  ? chain2TestnetBetContract
+  : chain2MainnetBetContract;
