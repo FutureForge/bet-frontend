@@ -1,4 +1,6 @@
 import {
+  chains,
+  Chains,
   getBetContractActiveChain,
   getChain,
   getChainInfoById,
@@ -17,16 +19,11 @@ import {
 import BetContractABI from "@/modules/blockchain/abi/bet-contract.json";
 import axios from "axios";
 import { BACKEND_URL } from "@/utils/configs";
-
-type BetPlaced = {
-  betId: number;
-  bettor: string;
-  amount: number;
-  totalOdds: number;
-  matchIds: number[];
-};
+import { BetPlaced, SingleBetSlip } from "@/utils/types/bet/bets.type";
+import { queryKeys } from "@/modules/query/query-keys";
 
 export function usePlaceBetMutation() {
+  const queryClient = useQueryClient();
   const { account, activeChain } = useUserChainInfo();
   const userAddress = account?.address;
 
@@ -68,6 +65,10 @@ export function usePlaceBetMutation() {
         account,
         transaction,
       });
+
+      if (transactionReceipt.status === "reverted") {
+        throw new Error("Failed to claim bet");
+      }
 
       const event = transactionReceipt.logs.find(
         (log) => log.address.toLowerCase() === betContract.address.toLowerCase()
@@ -119,10 +120,94 @@ export function usePlaceBetMutation() {
       return saveBetToDb;
     },
     onSuccess: (data, variables, context) => {
-      // Handle success
+      queryClient.invalidateQueries({ queryKey: queryKeys.bets.bets });
     },
     onError: (error, variables, context) => {
       // Handle error
     },
+  });
+}
+
+// TODO: make sure the bet they want to claim aligns with the right blockchain so we call the right contract
+
+export function useClaimBetMutation() {
+  const queryClient = useQueryClient();
+  const { account, activeChain } = useUserChainInfo();
+  const userAddress = account?.address;
+
+  //6870311edf273038533398fc
+
+  return useMutation({
+    mutationFn: async ({
+      id,
+      claimSignature,
+      chain,
+      betId,
+      rewardAmount,
+    }: {
+      id: string;
+      claimSignature: string;
+      chain: "crossfi" | "bnb";
+      betId: number;
+      rewardAmount: number;
+    }) => {
+      console.log({ id, claimSignature, chain, betId, rewardAmount });
+
+      if (!account) {
+        throw new Error(`Need to connect wallet to place bet`);
+      }
+
+      if (!activeChain?.id) {
+        throw new Error(`Need to connect wallet to place bet`);
+      }
+
+      const selectedChain = chains.find((selChain) => selChain.chain === chain);
+
+      if (!selectedChain) {
+        throw new Error(`Need a selected chain to claim`);
+      }
+
+      const reward = ethers.parseEther(rewardAmount.toString());
+      const chainInfo = getChainInfoById(selectedChain.id);
+      const betContract = getBetContractActiveChain(selectedChain.id);
+      const BET_CONTRACT_INTERFACE = new ethers.Interface(BetContractABI);
+
+      console.log({ selectedChain });
+      console.log({ betContract });
+
+      // claim from blockchain logic
+
+      const transaction = prepareContractCall({
+        contract: betContract,
+        method:
+          "function claimWithSignature(uint256 _betId,uint256 _reward, bytes calldata _signature)",
+        params: [BigInt(betId), reward, claimSignature as `0x${string}`],
+      });
+      console.log({ transaction });
+
+      const transactionReceipt = await sendAndConfirmTransaction({
+        account,
+        transaction,
+      });
+      console.log({ transactionReceipt });
+
+      if (transactionReceipt.status === "reverted") {
+        throw new Error("Failed to claim bet");
+      }
+
+      // update db
+      const updateBetDB = await axios.post<SingleBetSlip>(
+        `${BACKEND_URL}/bets/${id}/claim`
+      );
+      console.log({ updateBetDB });
+
+      return updateBetDB.data.data;
+    },
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({
+        queryKey: [queryKeys.bets.claimed, queryKeys.bets.unclaimed],
+      });
+    },
+    onError: (error, variables, context) => {},
   });
 }

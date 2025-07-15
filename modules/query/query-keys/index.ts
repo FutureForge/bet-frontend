@@ -7,4 +7,9 @@ export const queryKeys = {
     allMatches: ["all-matches"] as const,
     single: ["single-matches"] as const,
   },
+  bets: {
+    unclaimed: ["unclaimed-bet"] as const,
+    claimed: ["claimed-bet"] as const,
+    bets: ["bets"] as const,
+  },
 };

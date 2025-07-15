@@ -9,6 +9,7 @@ import {
 } from "thirdweb/react";
 import { queryKeys } from "../query-keys";
 import axios from "axios";
+import { BetSlipResponse } from "@/utils/types/bet/bets.type";
 
 export function useUserChainInfo() {
   const account = useActiveAccount();
@@ -64,7 +65,6 @@ export function useUserDBQuery() {
         );
         return res.data;
       } catch (error: any) {
-
         // Check if it's a 502 error with "user doesn't exist" message
         if (
           error.response?.status === 502 &&
@@ -87,6 +87,66 @@ export function useUserDBQuery() {
     },
     enabled: !!userAddress,
     refetchInterval: 5000,
+  });
+}
+
+export function useUserUnclaimedBetsQuery() {
+  const { account } = useUserChainInfo();
+  const userAddress = account?.address;
+
+  return useQuery({
+    queryKey: [queryKeys.bets.unclaimed, { userAddress }],
+    queryFn: async () => {
+      const res = await axios.get<BetSlipResponse>(
+        `${BACKEND_URL}/bets/user/unclaimed/${userAddress}`
+      );
+
+      const bets = res.data.data;
+
+      return bets;
+    },
+    enabled: !!userAddress,
+    refetchInterval: 50000,
+  });
+}
+
+export function useUserClaimedBetsQuery() {
+  const { account } = useUserChainInfo();
+  const userAddress = account?.address;
+
+  return useQuery({
+    queryKey: [queryKeys.bets.claimed, { userAddress }],
+    queryFn: async () => {
+      const res = await axios.get<BetSlipResponse>(
+        `${BACKEND_URL}/bets/user/claimed/${userAddress}`
+      );
+
+      const bets = res.data.data;
+
+      return bets;
+    },
+    enabled: !!userAddress,
+    refetchInterval: 50000,
+  });
+}
+
+export function useUserBetsQuery() {
+  const { account } = useUserChainInfo();
+  const userAddress = account?.address;
+
+  return useQuery({
+    queryKey: [queryKeys.bets.bets, { userAddress }],
+    queryFn: async () => {
+      const res = await axios.get<BetSlipResponse>(
+        `${BACKEND_URL}/bets/user/${userAddress}`
+      );
+
+      const bets = res.data.data;
+
+      return bets;
+    },
+    enabled: !!userAddress,
+    refetchInterval: 50000,
   });
 }
 

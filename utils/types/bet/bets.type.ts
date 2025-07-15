@@ -1,10 +1,23 @@
 import { SelectedOutcome } from "../matches/matches.type";
 
+export type BetPlaced = {
+  betId: number;
+  bettor: string;
+  amount: number;
+  totalOdds: number;
+  matchIds: number[];
+};
+
 export type BetSlipResponse = {
   data: {
     betSlip: BetSlip;
     betSelection: BetSelection;
   }[];
+  success: boolean;
+};
+
+export type SingleBetSlip = {
+  data: BetSlip;
   success: boolean;
 };
 
