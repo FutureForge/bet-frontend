@@ -9,6 +9,11 @@ if (!process.env.NEXT_PUBLIC_IS_TESTNET) {
   throw new Error("NEXT_PUBLIC_IS_TESTNET is not set");
 }
 
+if (!process.env.NEXT_PUBLIC_SPORT_API_KEY) {
+  throw new Error("NEXT_PUBLIC_SPORT_API_KEY is not set");
+}
+
+export const SPORT_API_KEY = process.env.NEXT_PUBLIC_SPORT_API_KEY;
 export const IS_TESTNET = process.env.NEXT_PUBLIC_IS_TESTNET === "true";
 
 export const testnetProviderUrlMap = [
@@ -62,9 +67,10 @@ export const chain1Mainnet = defineChain({
 });
 
 // export const BACKEND_URL = ''
-export const BACKEND_URL = 'http://localhost:7777/api'
+export const BACKEND_URL = "http://localhost:7777/api";
 
-export const chain1TestnetBetContract = "0x1610D4E1F3e6f7A487cf27dc59c5694bbd74d951";
+export const chain1TestnetBetContract =
+  "0x1610D4E1F3e6f7A487cf27dc59c5694bbd74d951";
 export const chain1MainnetBetContract = "";
 
 export const chain2TestnetBetContract = "";

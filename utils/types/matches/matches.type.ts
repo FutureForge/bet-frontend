@@ -6,7 +6,7 @@ export type FootballData = {
 };
 
 export type SingleFootballData = {
-  data: CountryData;
+  data: Fixture;
   success: boolean;
 };
 
@@ -16,7 +16,7 @@ export type CountryData = {
     name: string;
     code: string;
     flag: string;
-    tableWidget: string;
+    tableWidget: WidgetConfig;
   };
   fixtures: Fixture[];
 };
@@ -44,7 +44,7 @@ export type Fixture = {
     code: string;
     flag: string;
   };
-  widget: string;
+  widget: WidgetConfig;
   prediction: {
     homePercent: string;
     awayPercent: string;
@@ -68,6 +68,31 @@ export type Fixture = {
     isAwayWinner: null | boolean;
   };
 };
+
+export type WidgetConfig =
+  | {
+      type: "standings";
+      config: {
+        host: string;
+        league: number;
+        team: string;
+        season: number;
+        theme: string;
+        showErrors: boolean;
+        showLogos: boolean;
+      };
+    }
+  | {
+      type: "game";
+      config: {
+        host: string;
+        id: string;
+        theme: string;
+        refresh: number;
+        showErrors: boolean;
+        showLogos: boolean;
+      };
+    };
 
 export type BetSlip = {
   userAddress: string;

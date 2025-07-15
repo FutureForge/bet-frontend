@@ -5,8 +5,12 @@ import {
   useGetAllFixtureQuery,
   useGetSingleFixtureQuery,
   useUserChainInfo,
+  useUserClaimedBetsQuery,
   useUserUnclaimedBetsQuery,
 } from "@/modules/query";
+import { DynamicWidget } from "@/modules/components/widget";
+import { useEffect } from "react";
+import { SPORT_API_KEY } from "@/utils/configs";
 
 export default function Home() {
   const { activeChain, account } = useUserChainInfo();
@@ -22,8 +26,13 @@ export default function Home() {
   // const { data: singleFixture } = useGetSingleFixtureQuery("1378969");
   // console.log({ singleFixture });
 
+  // const widget = singleFixture?.widget;
+
   // const { data: userUnclaimed } = useUserUnclaimedBetsQuery();
   // console.log({ userUnclaimed });
+
+  // const { data: userClaimed } = useUserClaimedBetsQuery();
+  // console.log({ userClaimed });
 
   const claimReward = useClaimBetMutation();
 
@@ -61,6 +70,33 @@ export default function Home() {
   return (
     <>
       <h1>HELLO WORLD</h1>
+
+      {/* <div
+        id="wg-api-football-game"
+        data-host="v3.football.api-sports.io"
+        data-key={SPORT_API_KEY}
+        data-id="718243"
+        data-theme=""
+        data-refresh="15"
+        data-show-errors="false"
+        data-show-logos="true"
+      ></div>
+      <script
+        type="module"
+        src="https://widgets.api-sports.io/2.0.3/widgets.js"
+      ></script> */}
+
+      {/* Dynamic Football Widget
+      {isLoading ? (
+        <div>Loading fixture data...</div>
+      ) : error ? (
+        <div>Error loading fixture: {error.message}</div>
+      ) : widget ? (
+        <DynamicWidget widget={widget} />
+      ) : (
+        <div>No widget data available</div>
+      )} */}
+
       <button onClick={handlePlaceBet}>place bet</button>
       <br />
       <br />

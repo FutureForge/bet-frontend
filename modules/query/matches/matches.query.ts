@@ -41,10 +41,10 @@ export function useGetSingleFixtureQuery(fixtureId: string) {
       const fixture = res.data;
 
       if (!fixture.success) {
-        return {};
+        throw new Error();
       }
 
-      return fixture;
+      return fixture.data;
     },
     enabled: !!fixtureId,
     refetchInterval: 15000,
