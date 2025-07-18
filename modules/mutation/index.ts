@@ -1,4 +1,5 @@
 export * from "./bet/bet.mutation";
+export * from './user/user.mutation'
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 // syntax
