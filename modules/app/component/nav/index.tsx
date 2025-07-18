@@ -2,13 +2,16 @@ import Link from "next/link";
 import { useEffect, useState, useMemo } from "react";
 import { IoIosMenu } from "react-icons/io";
 import { IoClose } from "react-icons/io5";
-import { cn } from "../../utils";
+import { cn, getFormatAddress } from "../../utils";
 import { ConnectButton } from "thirdweb/react";
 import { createWallet } from "thirdweb/wallets";
 import { useDisableScroll } from "../../hooks/useDisableScroll";
 import { chain1, chain2, client } from "@/utils/configs";
-import { useUserDBQuery } from "@/modules/query";
-
+import { useUserChainInfo, useUserDBQuery } from "@/modules/query";
+import Logo from "@/assets/logo.svg";
+import LogoText from "@/assets/logoText.svg";
+import { Dropdown } from "../dropdown/dropdown.snippet";
+import { Button } from "../button";
 const Nav_Links = [
   {
     name: "Home",
@@ -17,6 +20,10 @@ const Nav_Links = [
 ];
 
 export function Nav() {
+  const { account } = useUserChainInfo();
+  const [open, setOpen] = useState(false);
+
+
   const { data: userDb } = useUserDBQuery();
 
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
@@ -39,21 +46,42 @@ export function Nav() {
   return (
     <nav
       className={cn(
-        "flex sticky top-0 inset-x-0 z-50 py-3 h-20 w-full md:px-14 px-4 gap-4 justify-between items-center font-inter",
-        isScrolled ? "bg-[#0F0F0F] border-b border-sec-bg" : "bg-transparent"
+        "flex sticky top-0 inset-x-0 z-50 py-3 h-20 w-full md:px-8 px-4 gap-4 justify-between items-center font-inter",
+        isScrolled ? "bg-primary" : "bg-transparent"
       )}
     >
-      <div className="lg:w-1/5 w-1/2 flex lg:items-center justify-end lg:gap-6 gap-2 ">
-        <ConnectButton
-          client={client}
-          chains={[chain1, chain2]}
-          wallets={[createWallet("io.metamask")]}
-          connectButton={{
-            label: "Connect Wallet",
-            className:
-              "!font-inter !rounded-xl lg:!w-36 !w-[75%] max-sm:!w-full !flex !items-center !justify-center hover:!bg-primary/65 hover:!text-foreground !duration-300 !ease-in-out !transition !bg-primary !text-muted-foreground !h-10",
-          }}
-        />
+      <Link href="/" className="flex items-center gap-2">
+        <Logo className="size-10" />
+        <LogoText className="hidden md:inline w-[140px] ml-2" />
+      </Link>
+      <div className="lg:w-1/3 w-1/2 flex lg:items-center justify-end lg:gap-6 gap-2">
+        {!account?.address ? (
+          <ConnectButton
+            client={client}
+            chains={[chain1, chain2]}
+            wallets={[createWallet("io.metamask")]}
+            connectButton={{
+              label: "Connect Wallet",
+              className:
+                "!font-instrument !rounded-xl lg:!w-36 !w-[75%] max-sm:!w-full !flex !items-center !justify-center hover:!scale-105 !duration-300 !ease-in-out !transition !bg-secondary !text-white !h-10",
+            }}
+          />
+        ) : (
+          <div className="flex items-center gap-4">
+            <p className="text-muted">My Profile</p>
+            <p className="font-medium">Bal:5,355 XFI</p>
+            <Dropdown.Root>
+            <Dropdown.Trigger asChild className="!h-10 data-[state=open]:z-20">
+              <Button variant="secondary">
+
+              </Button>
+            </Dropdown.Trigger>
+            </Dropdown.Root>
+            <Button variant="secondary" className="!bg-priamry rounded-xl border-0 font-medium">
+              {getFormatAddress(account?.address)}
+            </Button>
+          </div>
+        )}
       </div>
       <div className="min-[1170px]:hidden flex items-center gap-8">
         {isMobileNavOpen ? (

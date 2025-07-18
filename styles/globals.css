@@ -1,23 +1,22 @@
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #131F2A;
+  --foreground: #F3F3F3;
+  --primary: #1E2C37;
+  --stroke: #FFFFFF1A;
+  --secondary: #3475DA;
+  --muted: #B3B3B3;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
 
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Instrument Sans", sans-serif;
 }
 
 @layer utilities {

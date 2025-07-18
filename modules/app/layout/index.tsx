@@ -12,7 +12,7 @@ const Toast = dynamic(() => import("@/modules/components/toast/toast"), {
 });
 export const RootLayout = ({ children, scrollToTop }: RootLayoutProps) => {
   return (
-    <div className="flex isolate flex-col h-screen relative bg-background  max-w-[1440px] mx-auto">
+    <div className="flex isolate flex-col h-screen relative max-w-[1440px] mx-auto">
       <Nav />
       <div
         className="w-full z-10 py-6 font-inter"
