@@ -30,5 +30,5 @@ export const buttonStyles = tv(
       size: "lg",
     },
   },
-  { responsiveVariants: true }
+
 );
