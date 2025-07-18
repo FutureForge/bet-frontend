@@ -1,5 +1,9 @@
 import { Chains } from "@/modules/blockchain";
-import { useClaimBetMutation, usePlaceBetMutation } from "@/modules/mutation";
+import {
+  useClaimBetMutation,
+  usePlaceBetMutation,
+  useSwitchChainMutation,
+} from "@/modules/mutation";
 import {
   getUserNativeBalance,
   useGetAllFixtureQuery,
@@ -16,9 +20,9 @@ export default function Home() {
   const { activeChain, account } = useUserChainInfo();
   const { balanceData, isBalanceLoading } = getUserNativeBalance();
 
-  // console.log({ activeChain });
-  // console.log({ account });
-  // console.log({ balanceData, isBalanceLoading });
+  console.log({ activeChain });
+  console.log({ account });
+  console.log({ balanceData, isBalanceLoading });
 
   // const { data: allFixtures } = useGetAllFixtureQuery();
   // console.log({ allFixtures });
@@ -33,6 +37,12 @@ export default function Home() {
 
   // const { data: userClaimed } = useUserClaimedBetsQuery();
   // console.log({ userClaimed });
+
+  const switchChainMutation = useSwitchChainMutation();
+
+  const handleSwitchChain = (chain: Chains) => {
+    switchChainMutation.mutate({ chain });
+  };
 
   const claimReward = useClaimBetMutation();
 
@@ -101,6 +111,11 @@ export default function Home() {
       <br />
       <br />
       <button onClick={handleClaimBet}>claim reward</button>
+      <br />
+      <br />
+      <button onClick={() => handleSwitchChain(Chains.CROSSFI)}>
+        switch chain
+      </button>
     </>
   );
 }
