@@ -13,6 +13,7 @@ type Selection = {
 type BetSlipStore = {
   selections: Selection[];
   mode: "single" | "multiple";
+  totalStake: number; // For multiple bets
   addSelection: (selection: Selection) => void;
   removeSelection: (
     matchId: number,
@@ -23,6 +24,7 @@ type BetSlipStore = {
     outcome: Selection["selectedOutcome"],
     value: number
   ) => void;
+  updateTotalStake: (value: number) => void;
   setMode: (mode: "single" | "multiple") => void;
   clearSelections: () => void;
 };
@@ -32,48 +34,78 @@ export const useBetSlipStore = create<BetSlipStore>()(
     (set, get) => ({
       selections: [],
       mode: "single",
+      totalStake: 0,
       addSelection: (selection) => {
         const { selections, mode } = get();
 
+        // Check if this exact selection already exists
         const exists = selections.find(
           (s) =>
             s.matchId === selection.matchId &&
             s.selectedOutcome === selection.selectedOutcome
         );
 
-        // Toggle behavior
-        let newSelections;
+        // If selection exists, remove it (toggle behavior)
         if (exists) {
-          newSelections = selections.filter(
+          const newSelections = selections.filter(
             (s) =>
               !(
                 s.matchId === selection.matchId &&
                 s.selectedOutcome === selection.selectedOutcome
               )
           );
-        } else {
-          if (mode === "multiple") {
-            const existingSelectionForMatch = selections.find(
-              (sel) => sel.matchId === selection.matchId
-            );
-            if (existingSelectionForMatch) {
-              return; // Don't add selection
-            }
-          }
-          newSelections = [...selections, selection];
+          
+          // Auto-determine mode based on remaining selections
+          const newMode = newSelections.length <= 1 ? "single" : "multiple";
+          set({ selections: newSelections, mode: newMode });
+          return;
         }
 
-        const matchIds = new Set(newSelections.map((s) => s.matchId));
-        const newMode = matchIds.size <= 1 ? "single" : "multiple";
+        // For single mode: allow multiple selections but only one per match
+        if (mode === "single") {
+          const existingSelectionForMatch = selections.find(
+            (sel) => sel.matchId === selection.matchId
+          );
+          if (existingSelectionForMatch) {
+            // Replace the existing selection for this match
+            const newSelections = selections.map((s) =>
+              s.matchId === selection.matchId ? selection : s
+            );
+            set({ selections: newSelections, mode: "single" });
+            return;
+          }
+        }
 
+        // For multiple mode: only allow one selection per match
+        if (mode === "multiple") {
+          const existingSelectionForMatch = selections.find(
+            (sel) => sel.matchId === selection.matchId
+          );
+          if (existingSelectionForMatch) {
+            // Replace the existing selection for this match
+            const newSelections = selections.map((s) =>
+              s.matchId === selection.matchId ? selection : s
+            );
+            set({ selections: newSelections, mode: "multiple" });
+            return;
+          }
+        }
+
+        // Add new selection
+        const newSelections = [...selections, selection];
+        
+        // Auto-determine mode based on selection count
+        const newMode = newSelections.length <= 1 ? "single" : "multiple";
+        
         set({ selections: newSelections, mode: newMode });
       },
       removeSelection: (matchId, outcome) => {
         const newSelections = get().selections.filter(
           (s) => !(s.matchId === matchId && s.selectedOutcome === outcome)
         );
-        const matchIds = new Set(newSelections.map((s) => s.matchId));
-        const newMode = matchIds.size <= 1 ? "single" : "multiple";
+        
+        // Auto-determine mode based on remaining selections
+        const newMode = newSelections.length <= 1 ? "single" : "multiple";
         set({ selections: newSelections, mode: newMode });
       },
       updateStake: (matchId, outcome, value) => {
@@ -85,36 +117,45 @@ export const useBetSlipStore = create<BetSlipStore>()(
           ),
         }));
       },
+      updateTotalStake: (value) => {
+        set({ totalStake: value });
+      },
       setMode: (mode) => {
         const { selections } = get();
-        if (mode === "multiple") {
-          const fixtureSelectionCount = selections.reduce((acc, selection) => {
-            acc[selection.matchId] = (acc[selection.matchId] || 0) + 1;
-            return acc;
-          }, {} as Record<number, number>);
-
-          const hasMultipleFromSameFixture = Object.values(
-            fixtureSelectionCount
-          ).some((count) => count > 1);
-
-          if (hasMultipleFromSameFixture) {
-            const seenFixtures = new Set<number>();
-            const filteredSelections = selections.filter((selection) => {
-              if (seenFixtures.has(selection.matchId)) {
-                return false;
-              }
-              seenFixtures.add(selection.matchId);
-              return true;
-            });
-
-            set({ mode, selections: filteredSelections });
-            return;
-          }
+        
+        if (mode === "single") {
+          // In single mode, keep all selections but ensure only one per match
+          const seenFixtures = new Set<number>();
+          const filteredSelections = selections.filter((selection) => {
+            if (seenFixtures.has(selection.matchId)) {
+              return false;
+            }
+            seenFixtures.add(selection.matchId);
+            return true;
+          });
+          
+          set({ mode, selections: filteredSelections });
+          return;
         }
-
+        
+        if (mode === "multiple") {
+          // In multiple mode, ensure only one selection per match
+          const seenFixtures = new Set<number>();
+          const filteredSelections = selections.filter((selection) => {
+            if (seenFixtures.has(selection.matchId)) {
+              return false;
+            }
+            seenFixtures.add(selection.matchId);
+            return true;
+          });
+          
+          set({ mode, selections: filteredSelections });
+          return;
+        }
+        
         set({ mode });
       },
-      clearSelections: () => set({ selections: [], mode: "single" }),
+      clearSelections: () => set({ selections: [], mode: "single", totalStake: 0 }),
     }),
     {
       name: "bet-slip-storage", // localStorage key

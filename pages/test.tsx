@@ -61,19 +61,22 @@ export default function Home() {
 
   const handlePlaceBet = () => {
     placeBet.mutate({
-      totalBetAmount: 0.5,
-      selections: [
-        {
-          matchId: 1208021,
-          oddsAtPlacement: 2,
-          selectedOutcome: "home",
-        },
-        {
-          matchId: 1208022,
-          oddsAtPlacement: 2,
-          selectedOutcome: "away",
-        },
-      ],
+      betType: "single",
+      betSlip: {
+        totalBetAmount: 0.5,
+        selections: [
+          {
+            matchId: 1208021,
+            oddsAtPlacement: 2,
+            selectedOutcome: "home",
+          },
+          {
+            matchId: 1208022,
+            oddsAtPlacement: 2,
+            selectedOutcome: "away",
+          },
+        ],
+      },
     });
   };
 

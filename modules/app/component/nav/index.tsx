@@ -78,7 +78,11 @@ export function Nav() {
           <div className="flex items-center gap-4">
             <p className="text-muted">My Profile</p>
             <p className="font-medium">
-              Bal: {Number(nativeBalance).toFixed(4)} {symbol}
+              Bal:{" "}
+              {isBalanceLoading || !nativeBalance
+                ? 0
+                : Number(nativeBalance).toFixed(4)}{" "}
+              {symbol}
             </p>
             <Dropdown.Root>
               <Dropdown.Trigger
