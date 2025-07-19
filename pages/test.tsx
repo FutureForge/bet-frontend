@@ -5,7 +5,7 @@ import {
   useSwitchChainMutation,
 } from "@/modules/mutation";
 import {
-  getUserNativeBalance,
+  useUserNativeBalance,
   useGetAllFixtureQuery,
   useGetSingleFixtureQuery,
   useUserChainInfo,
@@ -18,7 +18,7 @@ import { SPORT_API_KEY } from "@/utils/configs";
 
 export default function Home() {
   const { activeChain, account } = useUserChainInfo();
-  const { balanceData, isBalanceLoading } = getUserNativeBalance();
+  const { balanceData, isBalanceLoading } = useUserNativeBalance();
 
   console.log({ activeChain });
   console.log({ account });

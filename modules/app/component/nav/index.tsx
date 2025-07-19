@@ -3,15 +3,20 @@ import { useEffect, useState, useMemo } from "react";
 import { IoIosMenu } from "react-icons/io";
 import { IoClose } from "react-icons/io5";
 import { cn, getFormatAddress } from "../../utils";
-import { ConnectButton } from "thirdweb/react";
+import { ConnectButton, useWalletBalance } from "thirdweb/react";
 import { createWallet } from "thirdweb/wallets";
 import { useDisableScroll } from "../../hooks/useDisableScroll";
 import { chain1, chain2, client } from "@/utils/configs";
-import { useUserChainInfo, useUserDBQuery } from "@/modules/query";
+import {
+  useUserNativeBalance,
+  useUserChainInfo,
+  useUserDBQuery,
+} from "@/modules/query";
 import Logo from "@/assets/logo.svg";
 import LogoText from "@/assets/logoText.svg";
 import { Dropdown } from "../dropdown/dropdown.snippet";
 import { Button } from "../button";
+
 const Nav_Links = [
   {
     name: "Home",
@@ -20,11 +25,13 @@ const Nav_Links = [
 ];
 
 export function Nav() {
-  const { account } = useUserChainInfo();
-  const [open, setOpen] = useState(false);
-
-
   const { data: userDb } = useUserDBQuery();
+
+  const { account, activeChain } = useUserChainInfo();
+  const { balanceData, isBalanceLoading } = useUserNativeBalance();
+  const { displayValue: nativeBalance, symbol } = balanceData || {};
+
+  const [open, setOpen] = useState(false);
 
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -60,6 +67,7 @@ export function Nav() {
             client={client}
             chains={[chain1, chain2]}
             wallets={[createWallet("io.metamask")]}
+            autoConnect={true}
             connectButton={{
               label: "Connect Wallet",
               className:
@@ -69,15 +77,21 @@ export function Nav() {
         ) : (
           <div className="flex items-center gap-4">
             <p className="text-muted">My Profile</p>
-            <p className="font-medium">Bal:5,355 XFI</p>
+            <p className="font-medium">
+              Bal: {Number(nativeBalance).toFixed(4)} {symbol}
+            </p>
             <Dropdown.Root>
-            <Dropdown.Trigger asChild className="!h-10 data-[state=open]:z-20">
-              <Button variant="secondary">
-
-              </Button>
-            </Dropdown.Trigger>
+              <Dropdown.Trigger
+                asChild
+                className="!h-10 data-[state=open]:z-20"
+              >
+                <Button variant="secondary"></Button>
+              </Dropdown.Trigger>
             </Dropdown.Root>
-            <Button variant="secondary" className="!bg-priamry rounded-xl border-0 font-medium">
+            <Button
+              variant="secondary"
+              className="!bg-priamry rounded-xl border-0 font-medium"
+            >
               {getFormatAddress(account?.address)}
             </Button>
           </div>

@@ -19,7 +19,7 @@ export function useUserChainInfo() {
   return { account, wallet, activeChain };
 }
 
-export function getUserNativeBalance() {
+export function useUserNativeBalance() {
   const { account, activeChain } = useUserChainInfo();
   const userAddress = account?.address;
 
@@ -33,6 +33,10 @@ export function getUserNativeBalance() {
     }
   }
 
+  console.log("nativeBalance chainInfo", chainInfo);
+  console.log("nativeBalance activeChain", activeChain);
+  console.log("nativeBalance userAddress", userAddress);
+
   const {
     data: balanceData,
     isLoading: isBalanceLoading,
@@ -43,11 +47,17 @@ export function getUserNativeBalance() {
       address: userAddress,
       client,
     },
-    {
-      enabled: !!userAddress && !!activeChain?.id,
-      refetchInterval: 5000,
-    }
+    // {
+    //   enabled: !!userAddress && !!activeChain?.id,
+    //   refetchInterval: 5000,
+    // }
   );
+
+  console.log('nativeBalance', {
+    balanceData,
+    isBalanceLoading,
+    isBalanceError
+  })
 
   return { balanceData, isBalanceLoading, isBalanceError };
 }
