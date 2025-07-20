@@ -16,6 +16,7 @@ import Logo from "@/assets/logo.svg";
 import LogoText from "@/assets/logoText.svg";
 import { Dropdown } from "../dropdown/dropdown.snippet";
 import { Button } from "../button";
+import Network from "./index/network";
 
 const Nav_Links = [
   {
@@ -76,7 +77,12 @@ export function Nav() {
           />
         ) : (
           <div className="flex items-center gap-4">
-            <p className="text-muted">My Profile</p>
+            <Link
+              href="/profile"
+              className="text-muted hover:text-white transition-all duration-300 ease-in-out"
+            >
+              My Profile
+            </Link>
             <p className="font-medium">
               Bal:{" "}
               {isBalanceLoading || !nativeBalance
@@ -84,14 +90,7 @@ export function Nav() {
                 : Number(nativeBalance).toFixed(4)}{" "}
               {symbol}
             </p>
-            <Dropdown.Root>
-              <Dropdown.Trigger
-                asChild
-                className="!h-10 data-[state=open]:z-20"
-              >
-                <Button variant="secondary"></Button>
-              </Dropdown.Trigger>
-            </Dropdown.Root>
+            <Network />
             <Button
               variant="secondary"
               className="!bg-priamry rounded-xl border-0 font-medium"
