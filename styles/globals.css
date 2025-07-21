@@ -10,8 +10,34 @@
   --stroke: #FFFFFF1A;
   --secondary: #3475DA;
   --muted: #B3B3B3;
+  --badge-primary: #3475DA4A;
+  --badge-secondary: #E8B9311A;
+  --warning: #E8B931;
+}
+.skeleton-el {
+  background-image: linear-gradient(
+    90deg,
+    rgba(34, 34, 34, 0),
+    rgba(42, 42, 42, 0.15),
+    rgba(35, 35, 35, 0.05)
+  );
 }
 
+.dark .skeleton-el {
+  background-image: linear-gradient(
+    90deg,
+    rgba(34, 34, 34, 0),
+    rgba(42, 42, 42, 0.3),
+    rgba(35, 35, 35, 0.1)
+  );
+}
+
+@keyframes shine {
+  to {
+    /* // Move shine from left to right, with offset on the right based on the width of the shine - see background-size */
+    background-position: right -40px top 0;
+  }
+}
 
 body {
   color: var(--foreground);

@@ -1,6 +1,8 @@
+
 import { ReactNode } from "react";
 import dynamic from "next/dynamic";
 import { Nav } from "../component/nav";
+import { WinningDialog } from "@/modules/winning-dialog";
 
 type RootLayoutProps = {
   children: ReactNode;
@@ -12,10 +14,10 @@ const Toast = dynamic(() => import("@/modules/components/toast/toast"), {
 });
 export const RootLayout = ({ children, scrollToTop }: RootLayoutProps) => {
   return (
-    <div className="flex isolate flex-col h-screen relative max-w-[1440px] mx-auto">
+    <div className="flex isolate flex-col h-screen relative">
       <Nav />
       <div
-        className="w-full z-10 py-6 font-inter"
+        className="w-full z-10 py-6 font-instrument max-w-[1440px] mx-auto"
         ref={(node) => {
           if (node && scrollToTop) {
             node.scroll(0, 0);
@@ -24,6 +26,7 @@ export const RootLayout = ({ children, scrollToTop }: RootLayoutProps) => {
       >
         {children}
         <Toast />
+        <WinningDialog/>
       </div>
     </div>
   );
