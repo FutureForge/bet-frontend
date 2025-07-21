@@ -1,7 +1,8 @@
 import React from "react";
 import Script from "next/script";
 
-const SPORT_API_KEY = process.env.NEXT_PUBLIC_SPORT_API_KEY ?? "";
+import { SPORT_API_KEY } from "@/utils/configs";
+
 export function APIFootballGameWidget({ matchId }: { matchId: number }) {
   const [scriptLoaded, setScriptLoaded] = React.useState(false);
 

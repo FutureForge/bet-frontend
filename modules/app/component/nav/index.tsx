@@ -55,67 +55,73 @@ export function Nav() {
     <nav
       className={cn(
         "flex sticky top-0 inset-x-0 z-50 py-3 h-20 w-full md:px-8 px-4 gap-4 justify-between items-center font-inter",
-        isScrolled ? "bg-primary" : "bg-transparent"
+        isScrolled ? "bg-background border-b border-b-stroke" : "bg-transparent"
       )}
     >
-      <Link href="/" className="flex items-center gap-2">
-        <Logo className="size-10" />
-        <LogoText className="hidden md:inline w-[140px] ml-2" />
-      </Link>
-      <div className="lg:w-1/3 w-1/2 flex lg:items-center justify-end lg:gap-6 gap-2">
-        {!account?.address ? (
-          <ConnectButton
-            client={client}
-            chains={[chain1, chain2]}
-            wallets={[createWallet("io.metamask")]}
-            autoConnect={true}
-            connectButton={{
-              label: "Connect Wallet",
-              className:
-                "!font-instrument !rounded-xl lg:!w-36 !w-[75%] max-sm:!w-full !flex !items-center !justify-center hover:!scale-105 !duration-300 !ease-in-out !transition !bg-secondary !text-white !h-10",
-            }}
-          />
-        ) : (
-          <div className="flex items-center gap-4">
-            <Link
-              href="/profile"
-              className="text-muted hover:text-white transition-all duration-300 ease-in-out"
-            >
-              My Profile
-            </Link>
-            <p className="font-medium">
-              Bal:{" "}
-              {isBalanceLoading || !nativeBalance
-                ? 0
-                : Number(nativeBalance).toFixed(4)}{" "}
-              {symbol}
-            </p>
-            <Network />
-            <Button
-              variant="secondary"
-              className="!bg-priamry rounded-xl border-0 font-medium"
-            >
-              {getFormatAddress(account?.address)}
-            </Button>
-          </div>
+      <div
+        className={cn(
+          "flex py-3 h-20 w-full md:px-8 px-4 gap-4 justify-between items-center font-instrument max-w-[1440px] mx-auto"
         )}
+      >
+        <Link href="/" className="flex items-center gap-2">
+          <Logo className="size-10" />
+          <LogoText className="hidden md:inline w-[140px] ml-2" />
+        </Link>
+        <div className="lg:w-1/3 w-1/2 flex lg:items-center justify-end lg:gap-6 gap-2">
+          {!account?.address ? (
+            <ConnectButton
+              client={client}
+              chains={[chain1, chain2]}
+              wallets={[createWallet("io.metamask")]}
+              autoConnect={true}
+              connectButton={{
+                label: "Connect Wallet",
+                className:
+                  "!font-instrument !rounded-xl lg:!w-36 !w-[75%] max-sm:!w-full !flex !items-center !justify-center hover:!scale-105 !duration-300 !ease-in-out !transition !bg-secondary !text-white !h-10",
+              }}
+            />
+          ) : (
+            <div className="flex items-center gap-4">
+              <Link
+                href="/profile"
+                className="text-muted hover:text-white transition-all duration-300 ease-in-out"
+              >
+                My Profile
+              </Link>
+              <p className="font-medium">
+                Bal:{" "}
+                {isBalanceLoading || !nativeBalance
+                  ? 0
+                  : Number(nativeBalance).toFixed(4)}{" "}
+                {symbol}
+              </p>
+              <Network />
+              <Button
+                variant="secondary"
+                className="!bg-priamry rounded-xl border-0 font-medium"
+              >
+                {getFormatAddress(account?.address)}
+              </Button>
+            </div>
+          )}
+        </div>
+        <div className="min-[1170px]:hidden flex items-center gap-8">
+          {isMobileNavOpen ? (
+            <IoClose
+              size={30}
+              onClick={() => setIsMobileNavOpen(false)}
+              className="text-muted-foreground"
+            />
+          ) : (
+            <IoIosMenu
+              size={30}
+              className="text-muted-foreground"
+              onClick={() => setIsMobileNavOpen(true)}
+            />
+          )}
+        </div>
+        {isMobileNavOpen && <MobileNav />}
       </div>
-      <div className="min-[1170px]:hidden flex items-center gap-8">
-        {isMobileNavOpen ? (
-          <IoClose
-            size={30}
-            onClick={() => setIsMobileNavOpen(false)}
-            className="text-muted-foreground"
-          />
-        ) : (
-          <IoIosMenu
-            size={30}
-            className="text-muted-foreground"
-            onClick={() => setIsMobileNavOpen(true)}
-          />
-        )}
-      </div>
-      {isMobileNavOpen && <MobileNav />}
     </nav>
   );
 }
