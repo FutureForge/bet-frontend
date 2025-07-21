@@ -27,6 +27,7 @@ import { ScrollArea } from "@/modules/app/scroll-area/scroll-area";
 import { Button } from "@/modules/app/component/button";
 import { getActiveChainDetails } from "@/utils/configs/global";
 import { usePlaceBetMutation } from "@/modules/mutation";
+import { useRouter } from "next/router";
 
 const choices = ["Single", "Multiple"];
 
@@ -35,7 +36,12 @@ export default function Highlights() {
   const { data: allFixtures } = useGetAllFixtureQuery() as {
     data?: CountryData[];
   };
+  const router = useRouter();
 
+  const handleFixtureClick = (id: number) => {
+    router.push(`/matches/${id}`);
+    console.log(`Navigating to match with ID: ${id}`);
+  };
   const { logo: chainLogo, symbol: chainSymbol } = getActiveChainDetails(
     activeChain?.id
   );
@@ -296,6 +302,7 @@ export default function Highlights() {
                         {matches.map((match) => (
                           <div
                             key={match.id}
+                            tabIndex={0}
                             className="flex items-center justify-between py-3 border-b border-gray-700 last:border-none"
                           >
                             {/* LEFT: TEAMS & TIME */}
@@ -306,7 +313,15 @@ export default function Highlights() {
                                   <span>{match.matchStats.status}</span>
                                 )}
                               </div>
-                              <div className="flex flex-col">
+                              <div
+                                role="button"
+                                onClick={() => handleFixtureClick(match.id)}
+                                onKeyDown={(e) => {
+                                  if (e.key === "Enter" || e.key === " ")
+                                    handleFixtureClick(match.id);
+                                }}
+                                className="flex flex-col"
+                              >
                                 <span className="text-white flex items-center gap-2">
                                   <img
                                     src={match.homeTeamLogo}
