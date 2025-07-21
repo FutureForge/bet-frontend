@@ -8,6 +8,7 @@ export const queryKeys = {
     single: ["single-matches"] as const,
   },
   bets: {
+    lost: ["lost-bet"] as const,
     unclaimed: ["unclaimed-bet"] as const,
     claimed: ["claimed-bet"] as const,
     bets: ["bets"] as const,

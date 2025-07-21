@@ -9,16 +9,19 @@ import { Badge } from "../../badge";
 // SVGs as React Components via SVGR
 import BSCIcon from "@/assets/bsc.svg";
 import XFIIcon from "@/assets/xfi.svg";
+import { useUserChainInfo } from "@/modules/query";
+import { Chains, getChain } from "@/modules/blockchain";
+import { useSwitchChainMutation } from "@/modules/mutation";
 
 const networks = [
   {
-    networkKey: "bsc",
+    networkKey: "bnb",
     name: "Binance Smart Chain",
     Icon: BSCIcon,
     chainID: 97,
   },
   {
-    networkKey: "xfi",
+    networkKey: "crossfi",
     name: "CrossFi",
     Icon: XFIIcon,
     chainID: 4157,
@@ -26,8 +29,11 @@ const networks = [
 ];
 
 export default function Network() {
+  const { activeChain } = useUserChainInfo();
   const [open, setOpen] = useState(false);
-  const [activeNetwork, setActiveNetwork] = useState(networks[0].networkKey);
+  const chain = getChain(activeChain?.id || 4157);
+
+  const activeNetwork = chain?.chain || Chains.CROSSFI;
   const isMobile = useMediaQuery("(max-width: 425px)");
 
   const active = useMemo(
@@ -42,6 +48,12 @@ export default function Network() {
       ...networks.filter((n) => n.networkKey !== activeNetwork),
     ];
   }, [activeNetwork]);
+
+  const { mutate: switchChainMutation, isPending } = useSwitchChainMutation();
+
+  const handleSwitchChain = (chain: Chains) => {
+    switchChainMutation({ chain });
+  };
 
   return (
     <Dropdown.Root open={open} onOpenChange={setOpen}>
@@ -74,7 +86,10 @@ export default function Network() {
           return (
             <Dropdown.Item
               key={item.networkKey}
-              onClick={() => setActiveNetwork(item.networkKey)}
+              onClick={() => {
+                handleSwitchChain(item.networkKey as Chains);
+              }}
+              disabled={isPending}
               className="w-full group p-1.5 outline-none"
             >
               <div

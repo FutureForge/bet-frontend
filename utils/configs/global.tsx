@@ -1,5 +1,6 @@
 import { Chains, chains, getChain } from "@/modules/blockchain";
 import XFI from "@/assets/xfi.svg";
+import BSCIcon from "@/assets/bsc.svg";
 
 export function getActiveChainDetails(chainId: number = 4157): {
   logo: React.ReactElement;
@@ -18,7 +19,7 @@ export function getActiveChainDetails(chainId: number = 4157): {
     };
   } else if (chain.chain === Chains.BNB) {
     return {
-      logo: <XFI className="size-4" />,
+      logo: <BSCIcon className="size-4" />,
       symbol: "BNB",
     };
   }

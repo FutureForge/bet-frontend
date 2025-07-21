@@ -26,7 +26,7 @@ export const RootLayout = ({ children, scrollToTop }: RootLayoutProps) => {
       >
         {children}
         <Toast />
-        <WinningDialog/>
+        {/* <WinningDialog/> */}
       </div>
     </div>
   );

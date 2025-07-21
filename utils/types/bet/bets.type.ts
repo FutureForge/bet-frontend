@@ -17,8 +17,8 @@ export type BetSlipResponse = {
 };
 
 export type SingleBetSlip = {
-  data: BetSlip;
-  success: boolean;
+  betSlip: BetSlip;
+  betSelection: BetSelection;
 };
 
 export type BetSelection = {
@@ -54,6 +54,7 @@ export type BetSlip = {
   isClaimed: boolean;
   placedAt: string;
   actualWinnings: number;
+  blockchain: string;
   createdAt: string;
   updatedAt: string;
   __v: number;

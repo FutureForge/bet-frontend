@@ -10,6 +10,9 @@ import {
 import { queryKeys } from "../query-keys";
 import axios from "axios";
 import { BetSlipResponse } from "@/utils/types/bet/bets.type";
+import { User, UserResponse } from "@/utils/types/user/user.types";
+
+const customUserAddress = "0xa1f91a0E64AB09B985C4d5Ac30e652a7F6c0B2a6"
 
 export function useUserChainInfo() {
   const account = useActiveAccount();
@@ -40,7 +43,7 @@ export function useUserNativeBalance() {
   } = useWalletBalance(
     {
       chain: chainInfo,
-      address: userAddress,
+      address: customUserAddress,
       client,
     },
     {
@@ -60,10 +63,10 @@ export function useUserDBQuery() {
     queryKey: [queryKeys.user.saveUser, { userAddress }],
     queryFn: async () => {
       try {
-        const res = await axios.get(
-          `${BACKEND_URL}/users/address/${userAddress}`
+        const res = await axios.get<UserResponse>(
+          `${BACKEND_URL}/users/address/${customUserAddress}`
         );
-        return res.data;
+        return res.data.data as User;
       } catch (error: any) {
         // Check if it's a 502 error with "user doesn't exist" message
         if (
@@ -71,11 +74,14 @@ export function useUserDBQuery() {
           error.response?.data?.message?.includes("User doesnt exist")
         ) {
           try {
-            const createUserRes = await axios.post(`${BACKEND_URL}/users`, {
-              address: userAddress,
-            });
+            const createUserRes = await axios.post<UserResponse>(
+              `${BACKEND_URL}/users`,
+              {
+                address: customUserAddress,
+              }
+            );
 
-            return createUserRes.data;
+            return createUserRes.data.data as User;
           } catch (createError) {
             // console.error("Failed to create user:", createError);
             throw createError;
@@ -90,6 +96,26 @@ export function useUserDBQuery() {
   });
 }
 
+export function useUserLostBetsQuery() {
+  const { account } = useUserChainInfo();
+  const userAddress = account?.address;
+
+  return useQuery({
+    queryKey: [queryKeys.bets.lost, { userAddress }],
+    queryFn: async () => {
+      const res = await axios.get<BetSlipResponse>(
+        `${BACKEND_URL}/bets/user/lost/${customUserAddress}`
+      );
+
+      const bets = res.data.data;
+
+      return bets;
+    },
+    enabled: !!userAddress,
+    refetchInterval: 50000,
+  });
+}
+
 export function useUserUnclaimedBetsQuery() {
   const { account } = useUserChainInfo();
   const userAddress = account?.address;
@@ -98,7 +124,7 @@ export function useUserUnclaimedBetsQuery() {
     queryKey: [queryKeys.bets.unclaimed, { userAddress }],
     queryFn: async () => {
       const res = await axios.get<BetSlipResponse>(
-        `${BACKEND_URL}/bets/user/unclaimed/${userAddress}`
+        `${BACKEND_URL}/bets/user/unclaimed/${customUserAddress}`
       );
 
       const bets = res.data.data;
@@ -118,7 +144,7 @@ export function useUserClaimedBetsQuery() {
     queryKey: [queryKeys.bets.claimed, { userAddress }],
     queryFn: async () => {
       const res = await axios.get<BetSlipResponse>(
-        `${BACKEND_URL}/bets/user/claimed/${userAddress}`
+        `${BACKEND_URL}/bets/user/claimed/${customUserAddress}`
       );
 
       const bets = res.data.data;
@@ -138,7 +164,7 @@ export function useUserBetsQuery() {
     queryKey: [queryKeys.bets.bets, { userAddress }],
     queryFn: async () => {
       const res = await axios.get<BetSlipResponse>(
-        `${BACKEND_URL}/bets/user/${userAddress}`
+        `${BACKEND_URL}/bets/user/${customUserAddress}`
       );
 
       const bets = res.data.data;

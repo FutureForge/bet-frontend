@@ -28,11 +28,9 @@ const Nav_Links = [
 export function Nav() {
   const { data: userDb } = useUserDBQuery();
 
-  const { account, activeChain } = useUserChainInfo();
+  const { account } = useUserChainInfo();
   const { balanceData, isBalanceLoading } = useUserNativeBalance();
   const { displayValue: nativeBalance, symbol } = balanceData || {};
-
-  const [open, setOpen] = useState(false);
 
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);

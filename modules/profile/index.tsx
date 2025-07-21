@@ -6,69 +6,149 @@ import {
   TabsRoot,
   TabsTrigger,
 } from "../app/component/tabs/tabs.snippets";
+import {
+  useUserBetsQuery,
+  useUserChainInfo,
+  useUserClaimedBetsQuery,
+  useUserDBQuery,
+  useUserLostBetsQuery,
+  useUserUnclaimedBetsQuery,
+} from "../query";
+import { useRouter } from "next/router";
+import { User } from "@/utils/types/user/user.types";
+import { SingleBetSlip } from "@/utils/types/bet/bets.type";
 
-type Tab = "all" | "settled" | "unsettled";
+export interface AllBets extends SingleBetSlip {
+  tag?: string;
+  status?: string;
+}
 
-const mockBets = [
-  {
-    id: 1,
-    mode: "Single",
-    status: "Running" as const,
-    match: "Newcastle United v Real Madrid",
-    stake: "2,230 XFI",
-    returnAmount: "2,230,238 XFI",
-    date: "26/03/2025",
-    time: "08:43",
-    chain: "bsc" as const,
-  },
-  {
-    id: 2,
-    mode: "Multiple",
-    status: "Won" as const,
-    match:
-      "Newcastle United v Real Madrid\nNewcastle United v Real Madrid\nand 4 others",
-    stake: "2,230 XFI",
-    returnAmount: "2,230,238 XFI",
-    date: "26/03/2025",
-    time: "Finished",
-    chain: "crossfi" as const,
-  },
-  {
-    id: 3,
-    mode: "Single",
-    status: "Lost" as const,
-    match: "Newcastle United v Real Madrid",
-    stake: "2,230 XFI",
-    returnAmount: "2,230,238 XFI",
-    date: "26/03/2025",
-    time: "Finished",
-    chain: "crossfi" as const,
-  },
-  {
-    id: 4,
-    mode: "Multiple",
-    status: "Won" as const,
-    match:
-      "Newcastle United v Real Madrid\nNewcastle United v Real Madrid\nand 4 others",
-    stake: "2,230 XFI",
-    returnAmount: "2,230,238 XFI",
-    date: "26/03/2025",
-    time: "Finished",
-    chain: "crossfi" as const,
-  },
-];
-
-const settledBets = mockBets.filter((bet) => bet.status !== "Running");
-const unsettledBets = mockBets.filter((bet) => bet.status === "Running");
+type Tab =
+  | "all"
+  | "settled"
+  | "unsettled"
+  | "claimed"
+  | "unclaimed"
+  | "won"
+  | "lost";
 
 export function ProfilePage() {
-  const [loading, setLoading] = useState(true);
+  const { account } = useUserChainInfo();
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<Tab>("all");
 
-  useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 2000);
-    return () => clearTimeout(timer);
-  }, []);
+  const { data: userDBInfo } = useUserDBQuery();
+  const { totalWon, totalWagered, lossCount, winCount } =
+    (userDBInfo as User) || {};
+
+  const { data: userLostBets, isLoading: isUserLostBetsLoading } =
+    useUserLostBetsQuery();
+  const { data: userUnclaimedBets, isLoading: isUserUnclaimedBetsLoading } =
+    useUserUnclaimedBetsQuery();
+  const { data: userClaimedBets, isLoading: isUserClaimedBetsLoading } =
+    useUserClaimedBetsQuery();
+  const { data: userBets, isLoading: isUserBetsLoading } = useUserBetsQuery();
+
+  // Combine all bets with appropriate tags
+  const allBets = React.useMemo(() => {
+    const combinedBets: AllBets[] = [];
+
+    // Add unsettled bets (userBets)
+    if (userBets) {
+      userBets.forEach((bet: any) => {
+        combinedBets.push({
+          ...bet,
+          tag: "unsettled",
+          status: "Running",
+        });
+      });
+    }
+
+    // Add claimed bets (won)
+    if (userClaimedBets) {
+      userClaimedBets.forEach((bet: any) => {
+        combinedBets.push({
+          ...bet,
+          tag: "claimed",
+          status: "Won",
+        });
+      });
+    }
+
+    // Add unclaimed bets (settled but not claimed)
+    if (userUnclaimedBets) {
+      userUnclaimedBets.forEach((bet: any) => {
+        combinedBets.push({
+          ...bet,
+          tag: "unclaimed",
+          status: "Won",
+        });
+      });
+    }
+
+    // Add lost bets
+    if (userLostBets) {
+      userLostBets.forEach((bet: any) => {
+        combinedBets.push({
+          ...bet,
+          tag: "lost",
+          status: "Lost",
+        });
+      });
+    }
+
+    return combinedBets.filter((bets) => {
+      return bets.betSelection.length !== 0;
+    });
+  }, [userBets, userClaimedBets, userUnclaimedBets, userLostBets]);
+
+  console.log({ allBets });
+
+  // Filter bets based on active tab
+  const filteredBets = React.useMemo(() => {
+    switch (activeTab) {
+      case "all":
+        return allBets;
+      case "settled":
+        return allBets.filter(
+          (bet) =>
+            bet.tag === "claimed" ||
+            bet.tag === "unclaimed" ||
+            bet.tag === "lost"
+        );
+      case "unsettled":
+        return allBets.filter((bet) => bet.tag === "unsettled");
+      case "claimed":
+        return allBets.filter((bet) => bet.tag === "claimed");
+      case "unclaimed":
+        return allBets.filter((bet) => bet.tag === "unclaimed");
+      case "won":
+        return allBets.filter(
+          (bet) => bet.tag === "claimed" || bet.tag === "unclaimed"
+        );
+      case "lost":
+        return allBets.filter((bet) => bet.tag === "lost");
+      default:
+        return allBets;
+    }
+  }, [allBets, activeTab]);
+
+  console.log({ userUnclaimedBets });
+  console.log({ userClaimedBets });
+  console.log({ userBets });
+  console.log({ userLostBets });
+
+  const isLoading =
+    isUserBetsLoading ||
+    isUserClaimedBetsLoading ||
+    isUserUnclaimedBetsLoading ||
+    isUserLostBetsLoading;
+
+  // useEffect(() => {
+  //   if (!account) {
+  //     router.push("/");
+  //   }
+  // }, [account]);
 
   return (
     <div className="px-6 py-4 text-white">
@@ -85,19 +165,31 @@ export function ProfilePage() {
       >
         <div className="flex items-center justify-between">
           <TabsList>
-            <TabsTrigger disabled={loading} value="all">
+            <TabsTrigger disabled={isLoading} value="all">
               All
             </TabsTrigger>
-            <TabsTrigger disabled={loading} value="settled">
+            <TabsTrigger disabled={isLoading} value="settled">
               Settled
             </TabsTrigger>
-            <TabsTrigger disabled={loading} value="unsettled">
+            <TabsTrigger disabled={isLoading} value="unsettled">
               Unsettled
+            </TabsTrigger>
+            <TabsTrigger disabled={isLoading} value="claimed">
+              Claimed
+            </TabsTrigger>
+            <TabsTrigger disabled={isLoading} value="unclaimed">
+              Unclaimed
+            </TabsTrigger>
+            <TabsTrigger disabled={isLoading} value="won">
+              Won
+            </TabsTrigger>
+            <TabsTrigger disabled={isLoading} value="lost">
+              Lost
             </TabsTrigger>
           </TabsList>
           {activeTab === "all" && (
             <div className="flex items-center gap-3 text-sm">
-              {loading ? (
+              {isLoading ? (
                 <>
                   <div className="bg-gray-700 h-6 w-16 rounded-md animate-pulse" />
                   <div className="bg-gray-700 h-6 w-16 rounded-md animate-pulse" />
@@ -106,13 +198,13 @@ export function ProfilePage() {
               ) : (
                 <>
                   <span className="bg-[#14AE5C33] text-[#14AE5C] px-2 py-1 rounded-md border border-[#14AE5C]">
-                    Wins: 7
+                    Wins: {winCount}
                   </span>
                   <span className="bg-[#EC221F33] text-[#EC221F] px-2 py-1 rounded-md border border-[#EC221F]">
-                    Losses: 5
+                    Losses: {lossCount}
                   </span>
                   <span className="bg-[#E8B9311A] text-[#E8B931] px-2 py-1 rounded-md border border-[#E8B931]">
-                    Running: 2
+                    Running: {userBets?.length || 0}
                   </span>
                 </>
               )}
@@ -123,33 +215,91 @@ export function ProfilePage() {
         {/* All Bets */}
         <TabsContent value="all">
           <div className="mt-6 flex flex-col gap-8">
-            {loading
+            {isLoading
               ? Array.from({ length: 3 }).map((_, i) => (
                   <BetCardSkeleton key={i} />
                 ))
-              : mockBets.map((bet) => <BetCard key={bet.id} {...bet} />)}
+              : filteredBets.map((bet, index) => (
+                  <BetCard key={index} {...bet} />
+                ))}
           </div>
         </TabsContent>
 
         {/* Settled Bets */}
         <TabsContent value="settled">
           <div className="mt-6 flex flex-col gap-8">
-            {loading
+            {isLoading
               ? Array.from({ length: 2 }).map((_, i) => (
                   <BetCardSkeleton key={i} />
                 ))
-              : settledBets.map((bet) => <BetCard key={bet.id} {...bet} />)}
+              : filteredBets.map((bet, index) => (
+                  <BetCard key={index} {...bet} />
+                ))}
           </div>
         </TabsContent>
 
         {/* Unsettled Bets */}
         <TabsContent value="unsettled">
           <div className="mt-6 flex flex-col gap-8">
-            {loading
+            {isLoading
               ? Array.from({ length: 1 }).map((_, i) => (
                   <BetCardSkeleton key={i} />
                 ))
-              : unsettledBets.map((bet) => <BetCard key={bet.id} {...bet} />)}
+              : filteredBets.map((bet, index) => (
+                  <BetCard key={index} {...bet} />
+                ))}
+          </div>
+        </TabsContent>
+
+        {/* Claimed Bets */}
+        <TabsContent value="claimed">
+          <div className="mt-6 flex flex-col gap-8">
+            {isLoading
+              ? Array.from({ length: 2 }).map((_, i) => (
+                  <BetCardSkeleton key={i} />
+                ))
+              : filteredBets.map((bet, index) => (
+                  <BetCard key={index} {...bet} />
+                ))}
+          </div>
+        </TabsContent>
+
+        {/* Unclaimed Bets */}
+        <TabsContent value="unclaimed">
+          <div className="mt-6 flex flex-col gap-8">
+            {isLoading
+              ? Array.from({ length: 2 }).map((_, i) => (
+                  <BetCardSkeleton key={i} />
+                ))
+              : filteredBets.map((bet, index) => (
+                  <BetCard key={index} {...bet} />
+                ))}
+          </div>
+        </TabsContent>
+
+        {/* Won Bets */}
+        <TabsContent value="won">
+          <div className="mt-6 flex flex-col gap-8">
+            {isLoading
+              ? Array.from({ length: 2 }).map((_, i) => (
+                  <BetCardSkeleton key={i} />
+                ))
+              : filteredBets.map((bet, index) => (
+                  <BetCard key={index} {...bet} />
+                ))}
+          </div>
+        </TabsContent>
+
+        {/* Lost Bets */}
+        <TabsContent value="lost">
+          <div className="mt-6 flex flex-col gap-8">
+            {isLoading
+              ? Array.from({ length: 2 }).map((_, i) => (
+                  <BetCardSkeleton key={i} />
+                ))
+              : filteredBets.map((bet, index) => (
+                  <BetCard key={index} {...bet} />
+                ))}
           </div>
         </TabsContent>
       </TabsRoot>
