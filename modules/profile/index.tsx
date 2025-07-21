@@ -102,8 +102,6 @@ export function ProfilePage() {
     });
   }, [userBets, userClaimedBets, userUnclaimedBets, userLostBets]);
 
-  console.log({ allBets });
-
   // Filter bets based on active tab
   const filteredBets = React.useMemo(() => {
     switch (activeTab) {
@@ -132,11 +130,6 @@ export function ProfilePage() {
         return allBets;
     }
   }, [allBets, activeTab]);
-
-  console.log({ userUnclaimedBets });
-  console.log({ userClaimedBets });
-  console.log({ userBets });
-  console.log({ userLostBets });
 
   const isLoading =
     isUserBetsLoading ||

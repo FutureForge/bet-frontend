@@ -26,7 +26,7 @@ export function useGetAllFixtureQuery() {
       return [dummyFixtures.data, ...fixtures.data];
     },
     enabled: true,
-    refetchInterval: 15000,
+    refetchInterval: 5000,
   });
 }
 

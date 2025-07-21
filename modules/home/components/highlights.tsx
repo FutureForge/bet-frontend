@@ -38,6 +38,8 @@ export default function Highlights() {
   };
   const router = useRouter();
 
+  console.log({allFixtures})
+
   const handleFixtureClick = (id: number) => {
     router.push(`/matches/${id}`);
     console.log(`Navigating to match with ID: ${id}`);
@@ -46,9 +48,9 @@ export default function Highlights() {
     activeChain?.id
   );
 
-  const { groupedByDate, tabs, sortedDateKeys } = useMemo(() => {
+  const { groupedByDate, tabs, sortedDateKeys, defaultTab } = useMemo(() => {
     if (!allFixtures)
-      return { groupedByDate: {}, tabs: [], sortedDateKeys: [] };
+      return { groupedByDate: {}, tabs: [], sortedDateKeys: [], defaultTab: "Today" };
 
     const dateMap: Record<string, Record<string, Fixture[]>> = {};
 
@@ -90,10 +92,18 @@ export default function Highlights() {
       date === today ? "Today" : dayjs(date).format("MMM DD")
     );
 
+    // Determine default tab - if no "Today" fixtures, use the first available tab
+    let defaultTab = "Today";
+    if (allDates.length > 0) {
+      const firstDate = allDates[0];
+      defaultTab = firstDate === today ? "Today" : dayjs(firstDate).format("MMM DD");
+    }
+
     return {
       groupedByDate: dateMap,
       tabs: tabLabels,
       sortedDateKeys: allDates,
+      defaultTab,
     };
   }, [allFixtures]);
 
@@ -272,144 +282,162 @@ export default function Highlights() {
       <div className="w-[70%] flex flex-col gap-4">
         <Title title="Highlights" />
 
-        <TabsRoot defaultValue="Today">
-          <TabsList className="flex gap-2 mb-4">
-            {tabs.map((tab) => (
-              <TabsTrigger key={tab} value={tab}>
-                {tab}
-              </TabsTrigger>
-            ))}
-          </TabsList>
+        {tabs.length === 0 ? (
+          <div className="flex items-center justify-center h-[600px]">
+            <div className="text-center">
+              <p className="text-gray-400 text-lg mb-2">No fixtures available</p>
+              <p className="text-gray-500 text-sm">There are no matches scheduled at the moment</p>
+            </div>
+          </div>
+        ) : (
+          <TabsRoot defaultValue={defaultTab}>
+            <TabsList className="flex gap-2 mb-4">
+              {tabs.map((tab) => (
+                <TabsTrigger key={tab} value={tab}>
+                  {tab}
+                </TabsTrigger>
+              ))}
+            </TabsList>
 
-          {sortedDateKeys.map((dateKey, idx) => (
-            <TabsContent key={dateKey} value={tabs[idx]} className="mt-4">
-              <ScrollArea.Root className="h-[600px]">
-                <div className="flex flex-col gap-6 max-h-[600px] scrollbar scrollbar-thin">
-                  {Object.entries(groupedByDate[dateKey] || {}).map(
-                    ([countryName, matches]) => (
-                      <div key={countryName} className="rounded-lg p-4 bg-card">
-                        {/* COUNTRY HEADER + 1 X 2 HEADING */}
-                        <div className="flex justify-between px-3 bg-primary py-2.5 rounded-tr-xl rounded-tl-xl text-sm mb-2">
-                          <span className="font-semibold">{countryName}</span>
-                          <div className="grid grid-cols-3 gap-4 w-1/2 text-center">
-                            <span>1</span>
-                            <span>X</span>
-                            <span>2</span>
-                          </div>
+            {sortedDateKeys.map((dateKey, idx) => (
+              <TabsContent key={dateKey} value={tabs[idx]} className="mt-4">
+                <ScrollArea.Root className="h-[600px]">
+                  <div className="flex flex-col gap-6 max-h-[600px] scrollbar scrollbar-thin">
+                    {Object.keys(groupedByDate[dateKey] || {}).length === 0 ? (
+                      <div className="flex items-center justify-center h-[400px]">
+                        <div className="text-center">
+                          <p className="text-gray-400 text-lg mb-2">No fixtures available</p>
+                          <p className="text-gray-500 text-sm">There are no matches scheduled for this date</p>
                         </div>
-
-                        {/* FIXTURES LIST */}
-                        {matches.map((match) => (
-                          <div
-                            key={match.id}
-                            tabIndex={0}
-                            className="flex items-center justify-between py-3 border-b border-gray-700 last:border-none"
-                          >
-                            {/* LEFT: TEAMS & TIME */}
-                            <div className="flex items-start gap-4 w-1/2">
-                              <div className="flex flex-col text-gray-400 text-xs">
-                                <span>{match.time}</span>
-                                {match.matchStats?.status && (
-                                  <span>{match.matchStats.status}</span>
-                                )}
-                              </div>
-                              <div
-                                role="button"
-                                onClick={() => handleFixtureClick(match.id)}
-                                onKeyDown={(e) => {
-                                  if (e.key === "Enter" || e.key === " ")
-                                    handleFixtureClick(match.id);
-                                }}
-                                className="flex flex-col"
-                              >
-                                <span className="text-white flex items-center gap-2">
-                                  <img
-                                    src={match.homeTeamLogo}
-                                    alt={match.homeTeam}
-                                    className="w-5 h-5"
-                                  />
-                                  {match.homeTeam}
-                                </span>
-                                <span className="text-white flex items-center gap-2">
-                                  <img
-                                    src={match.awayTeamLogo}
-                                    alt={match.awayTeam}
-                                    className="w-5 h-5"
-                                  />
-                                  {match.awayTeam}
-                                </span>
-                              </div>
-                            </div>
-
-                            {/* RIGHT: ODDS */}
-                            <div className="grid grid-cols-3 gap-4 w-1/2">
-                              {outcomeOptions.map((option) => {
-                                const oddsValue =
-                                  option.key === "home"
-                                    ? match.prediction?.odds?.home
-                                    : option.key === "draw"
-                                    ? match.prediction?.odds?.draw
-                                    : match.prediction?.odds?.away;
-
-                                // Validate odds value
-                                const isValidOdds = oddsValue && oddsValue > 0;
-
-                                const isSelected = selections.some(
-                                  (sel) =>
-                                    sel.matchId === match.id &&
-                                    sel.selectedOutcome === option.key
-                                );
-
-                                const isDisabled = isSelectionDisabled(
-                                  match.id,
-                                  option.key
-                                );
-
-                                return (
-                                  <button
-                                    key={option.key}
-                                    onClick={() =>
-                                      handleAddSelection({
-                                        matchId: match.id,
-                                        homeTeam: match.homeTeam,
-                                        awayTeam: match.awayTeam,
-                                        selectedOutcome: option.key,
-                                        odds: oddsValue || 0,
-                                      })
-                                    }
-                                    disabled={isDisabled || !isValidOdds}
-                                    className={`flex flex-col rounded-md py-3 w-full text-left p-3 ${
-                                      isSelected
-                                        ? "bg-secondary"
-                                        : isDisabled || !isValidOdds
-                                        ? "bg-muted opacity-50 cursor-not-allowed"
-                                        : "bg-primary hover:bg-secondary/85"
-                                    }`}
-                                  >
-                                    <span className="font-semibold text-lg">
-                                      {isValidOdds ? oddsValue.toFixed(2) : "-"}
-                                    </span>
-                                    <span className="text-sm">
-                                      {option.key === "draw"
-                                        ? "Draw"
-                                        : option.key === "home"
-                                        ? match.homeTeam
-                                        : match.awayTeam}
-                                    </span>
-                                  </button>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        ))}
                       </div>
-                    )
-                  )}
-                </div>
-              </ScrollArea.Root>
-            </TabsContent>
-          ))}
-        </TabsRoot>
+                    ) : (
+                      Object.entries(groupedByDate[dateKey] || {}).map(
+                        ([countryName, matches]) => (
+                          <div key={countryName} className="rounded-lg p-4 bg-card">
+                            {/* COUNTRY HEADER + 1 X 2 HEADING */}
+                            <div className="flex justify-between px-3 bg-primary py-2.5 rounded-tr-xl rounded-tl-xl text-sm mb-2">
+                              <span className="font-semibold">{countryName}</span>
+                              <div className="grid grid-cols-3 gap-4 w-1/2 text-center">
+                                <span>1</span>
+                                <span>X</span>
+                                <span>2</span>
+                              </div>
+                            </div>
+
+                            {/* FIXTURES LIST */}
+                            {matches.map((match) => (
+                              <div
+                                key={match.id}
+                                tabIndex={0}
+                                className="flex items-center justify-between py-3 border-b border-gray-700 last:border-none"
+                              >
+                                {/* LEFT: TEAMS & TIME */}
+                                <div className="flex items-start gap-4 w-1/2">
+                                  <div className="flex flex-col text-gray-400 text-xs">
+                                    <span>{match.time}</span>
+                                    {match.matchStats?.status && (
+                                      <span>{match.matchStats.status}</span>
+                                    )}
+                                  </div>
+                                  <div
+                                    role="button"
+                                    onClick={() => handleFixtureClick(match.id)}
+                                    onKeyDown={(e) => {
+                                      if (e.key === "Enter" || e.key === " ")
+                                        handleFixtureClick(match.id);
+                                    }}
+                                    className="flex flex-col"
+                                  >
+                                    <span className="text-white flex items-center gap-2">
+                                      <img
+                                        src={match.homeTeamLogo}
+                                        alt={match.homeTeam}
+                                        className="w-5 h-5"
+                                      />
+                                      {match.homeTeam}
+                                    </span>
+                                    <span className="text-white flex items-center gap-2">
+                                      <img
+                                        src={match.awayTeamLogo}
+                                        alt={match.awayTeam}
+                                        className="w-5 h-5"
+                                      />
+                                      {match.awayTeam}
+                                    </span>
+                                  </div>
+                                </div>
+
+                                {/* RIGHT: ODDS */}
+                                <div className="grid grid-cols-3 gap-4 w-1/2">
+                                  {outcomeOptions.map((option) => {
+                                    const oddsValue =
+                                      option.key === "home"
+                                        ? match.prediction?.odds?.home
+                                        : option.key === "draw"
+                                        ? match.prediction?.odds?.draw
+                                        : match.prediction?.odds?.away;
+
+                                    // Validate odds value
+                                    const isValidOdds = oddsValue && oddsValue > 0;
+
+                                    const isSelected = selections.some(
+                                      (sel) =>
+                                        sel.matchId === match.id &&
+                                        sel.selectedOutcome === option.key
+                                    );
+
+                                    const isDisabled = isSelectionDisabled(
+                                      match.id,
+                                      option.key
+                                    );
+
+                                    return (
+                                      <button
+                                        key={option.key}
+                                        onClick={() =>
+                                          handleAddSelection({
+                                            matchId: match.id,
+                                            homeTeam: match.homeTeam,
+                                            awayTeam: match.awayTeam,
+                                            selectedOutcome: option.key,
+                                            odds: oddsValue || 0,
+                                          })
+                                        }
+                                        disabled={isDisabled || !isValidOdds}
+                                        className={`flex flex-col rounded-md py-3 w-full text-left p-3 ${
+                                          isSelected
+                                            ? "bg-secondary"
+                                            : isDisabled || !isValidOdds
+                                            ? "bg-muted opacity-50 cursor-not-allowed"
+                                            : "bg-primary hover:bg-secondary/85"
+                                        }`}
+                                      >
+                                        <span className="font-semibold text-lg">
+                                          {isValidOdds ? oddsValue.toFixed(2) : "-"}
+                                        </span>
+                                        <span className="text-sm">
+                                          {option.key === "draw"
+                                            ? "Draw"
+                                            : option.key === "home"
+                                            ? match.homeTeam
+                                            : match.awayTeam}
+                                        </span>
+                                      </button>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )
+                      )
+                    )}
+                  </div>
+                </ScrollArea.Root>
+              </TabsContent>
+            ))}
+          </TabsRoot>
+        )}
       </div>
 
       {/* RIGHT COLUMN (Bet Slip) */}
