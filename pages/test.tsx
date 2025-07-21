@@ -27,8 +27,8 @@ export default function Home() {
   // const { data: allFixtures } = useGetAllFixtureQuery();
   // console.log({ allFixtures });
 
-  // const { data: singleFixture } = useGetSingleFixtureQuery("1378969");
-  // console.log({ singleFixture });
+  const { data: singleFixture } = useGetSingleFixtureQuery("1378969");
+  console.log({ singleFixture });
 
   // const widget = singleFixture?.widget;
 
@@ -60,35 +60,35 @@ export default function Home() {
   const placeBet = usePlaceBetMutation();
 
   const handlePlaceBet = () => {
-    placeBet.mutate({
-      betType: "single",
-      betSlip: {
-        totalBetAmount: 0.5,
-        selections: [
-          {
-            matchId: 1208021,
-            oddsAtPlacement: 2,
-            selectedOutcome: "home",
-          },
-          {
-            matchId: 1208022,
-            oddsAtPlacement: 2,
-            selectedOutcome: "away",
-          },
-        ],
-      },
-    });
+    // placeBet.mutate({
+    //   betType: "single",
+    //   betSlip: {
+    //     totalBetAmount: 0.5,
+    //     selections: [
+    //       {
+    //         matchId: 1208021,
+    //         oddsAtPlacement: 2,
+    //         selectedOutcome: "home",
+    //       },
+    //       {
+    //         matchId: 1208022,
+    //         oddsAtPlacement: 2,
+    //         selectedOutcome: "away",
+    //       },
+    //     ],
+    //   },
+    // });
   };
 
   return (
     <>
       <h1>HELLO WORLD</h1>
 
-      {/* <div
+      <div
         id="wg-api-football-game"
         data-host="v3.football.api-sports.io"
         data-key={SPORT_API_KEY}
-        data-id="718243"
+        data-id={1378969}
         data-theme=""
         data-refresh="15"
         data-show-errors="false"
@@ -97,7 +97,7 @@ export default function Home() {
       <script
         type="module"
         src="https://widgets.api-sports.io/2.0.3/widgets.js"
-      ></script> */}
+      ></script>
 
       {/* Dynamic Football Widget
       {isLoading ? (
