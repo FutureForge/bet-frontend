@@ -1,9 +1,9 @@
 "use client";
 import React from "react";
-import { Dialog } from "../app/component/dialog/dialog";
+import { Dialog } from "../dialog/dialog";
 import Image from "next/image";
 import XFI from "@/assets/xfi.svg";
-import { Button } from "../app/component/button";
+import { Button } from "../button";
 import Xmark from "@/assets/xmark.svg";
 
 export function WinningDialog() {

@@ -17,6 +17,7 @@ import {
 import { useRouter } from "next/router";
 import { User } from "@/utils/types/user/user.types";
 import { SingleBetSlip } from "@/utils/types/bet/bets.type";
+import { Header } from "./components/header";
 
 export interface AllBets extends SingleBetSlip {
   tag?: string;
@@ -31,7 +32,23 @@ type Tab =
   | "unclaimed"
   | "won"
   | "lost";
+function EmptyTabMessage({ tab }: { tab: Tab }) {
+  const copy: Record<Tab, string> = {
+    all: "You haven’t placed any bets yet.",
+    settled: "No settled bets yet.",
+    unsettled: "No running bets at the moment.",
+    claimed: "No claimed winnings yet.",
+    unclaimed: "No unclaimed winnings. Nice!",
+    won: "No winning bets yet.",
+    lost: "No lost bets. Keep it up!",
+  };
 
+  return (
+    <div className="py-10 text-center text-sm text-muted">
+      {copy[tab] ?? "No data."}
+    </div>
+  );
+}
 export function ProfilePage() {
   const { account } = useUserChainInfo();
   const router = useRouter();
@@ -146,6 +163,8 @@ export function ProfilePage() {
   return (
     <div className="px-6 py-4 text-white">
       {/* Header */}
+
+      <Header />
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">My Bets</h1>
       </div>
@@ -208,91 +227,105 @@ export function ProfilePage() {
         {/* All Bets */}
         <TabsContent value="all">
           <div className="mt-6 flex flex-col gap-8">
-            {isLoading
-              ? Array.from({ length: 3 }).map((_, i) => (
-                  <BetCardSkeleton key={i} />
-                ))
-              : filteredBets.map((bet, index) => (
-                  <BetCard key={index} {...bet} />
-                ))}
+            {isLoading ? (
+              Array.from({ length: 3 }).map((_, i) => (
+                <BetCardSkeleton key={i} />
+              ))
+            ) : filteredBets.length === 0 ? (
+              <EmptyTabMessage tab={activeTab} />
+            ) : (
+              filteredBets.map((bet, index) => <BetCard key={index} {...bet} />)
+            )}
           </div>
         </TabsContent>
 
         {/* Settled Bets */}
         <TabsContent value="settled">
           <div className="mt-6 flex flex-col gap-8">
-            {isLoading
-              ? Array.from({ length: 2 }).map((_, i) => (
-                  <BetCardSkeleton key={i} />
-                ))
-              : filteredBets.map((bet, index) => (
-                  <BetCard key={index} {...bet} />
-                ))}
+            {isLoading ? (
+              Array.from({ length: 3 }).map((_, i) => (
+                <BetCardSkeleton key={i} />
+              ))
+            ) : filteredBets.length === 0 ? (
+              <EmptyTabMessage tab={activeTab} />
+            ) : (
+              filteredBets.map((bet, index) => <BetCard key={index} {...bet} />)
+            )}
           </div>
         </TabsContent>
 
         {/* Unsettled Bets */}
         <TabsContent value="unsettled">
           <div className="mt-6 flex flex-col gap-8">
-            {isLoading
-              ? Array.from({ length: 1 }).map((_, i) => (
-                  <BetCardSkeleton key={i} />
-                ))
-              : filteredBets.map((bet, index) => (
-                  <BetCard key={index} {...bet} />
-                ))}
+            {isLoading ? (
+              Array.from({ length: 3 }).map((_, i) => (
+                <BetCardSkeleton key={i} />
+              ))
+            ) : filteredBets.length === 0 ? (
+              <EmptyTabMessage tab={activeTab} />
+            ) : (
+              filteredBets.map((bet, index) => <BetCard key={index} {...bet} />)
+            )}
           </div>
         </TabsContent>
 
         {/* Claimed Bets */}
         <TabsContent value="claimed">
           <div className="mt-6 flex flex-col gap-8">
-            {isLoading
-              ? Array.from({ length: 2 }).map((_, i) => (
-                  <BetCardSkeleton key={i} />
-                ))
-              : filteredBets.map((bet, index) => (
-                  <BetCard key={index} {...bet} />
-                ))}
+            {isLoading ? (
+              Array.from({ length: 3 }).map((_, i) => (
+                <BetCardSkeleton key={i} />
+              ))
+            ) : filteredBets.length === 0 ? (
+              <EmptyTabMessage tab={activeTab} />
+            ) : (
+              filteredBets.map((bet, index) => <BetCard key={index} {...bet} />)
+            )}
           </div>
         </TabsContent>
 
         {/* Unclaimed Bets */}
         <TabsContent value="unclaimed">
           <div className="mt-6 flex flex-col gap-8">
-            {isLoading
-              ? Array.from({ length: 2 }).map((_, i) => (
-                  <BetCardSkeleton key={i} />
-                ))
-              : filteredBets.map((bet, index) => (
-                  <BetCard key={index} {...bet} />
-                ))}
+            {isLoading ? (
+              Array.from({ length: 3 }).map((_, i) => (
+                <BetCardSkeleton key={i} />
+              ))
+            ) : filteredBets.length === 0 ? (
+              <EmptyTabMessage tab={activeTab} />
+            ) : (
+              filteredBets.map((bet, index) => <BetCard key={index} {...bet} />)
+            )}
           </div>
         </TabsContent>
 
         {/* Won Bets */}
         <TabsContent value="won">
           <div className="mt-6 flex flex-col gap-8">
-            {isLoading
-              ? Array.from({ length: 2 }).map((_, i) => (
-                  <BetCardSkeleton key={i} />
-                ))
-              : filteredBets.map((bet, index) => (
-                  <BetCard key={index} {...bet} />
-                ))}
+            {isLoading ? (
+              Array.from({ length: 3 }).map((_, i) => (
+                <BetCardSkeleton key={i} />
+              ))
+            ) : filteredBets.length === 0 ? (
+              <EmptyTabMessage tab={activeTab} />
+            ) : (
+              filteredBets.map((bet, index) => <BetCard key={index} {...bet} />)
+            )}
           </div>
         </TabsContent>
 
         {/* Lost Bets */}
         <TabsContent value="lost">
           <div className="mt-6 flex flex-col gap-8">
-            {isLoading
-              ? Array.from({ length: 2 }).map((_, i) => (
-                  <BetCardSkeleton key={i} />
-                ))
-              : filteredBets.map((bet, index) => (
-                  <BetCard key={index} {...bet} />
-                ))}
+            {isLoading ? (
+              Array.from({ length: 3 }).map((_, i) => (
+                <BetCardSkeleton key={i} />
+              ))
+            ) : filteredBets.length === 0 ? (
+              <EmptyTabMessage tab={activeTab} />
+            ) : (
+              filteredBets.map((bet, index) => <BetCard key={index} {...bet} />)
+            )}
           </div>
         </TabsContent>
       </TabsRoot>

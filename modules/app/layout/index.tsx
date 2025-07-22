@@ -2,7 +2,7 @@
 import { ReactNode } from "react";
 import dynamic from "next/dynamic";
 import { Nav } from "../component/nav";
-import { WinningDialog } from "@/modules/winning-dialog";
+import { WinningDialog } from "@/modules/app/component/winning-dialog";
 
 type RootLayoutProps = {
   children: ReactNode;
