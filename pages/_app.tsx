@@ -15,9 +15,10 @@ type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
 type AppPropsWithLayout = AppProps & {
   Component: NextPageWithLayout;
 };
+
 const instrument = Instrument_Sans({
   subsets: ["latin"],
-  weight: [ "400", "500", "600", "700"],
+  weight: ["400", "500", "600", "700"],
   variable: "--instrument",
 });
 

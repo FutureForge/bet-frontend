@@ -19,6 +19,8 @@ import { User } from "@/utils/types/user/user.types";
 import { SingleBetSlip } from "@/utils/types/bet/bets.type";
 import { Header } from "./components/header";
 import { getActiveChainDetails } from "@/utils/configs/global";
+import Head from "next/head";
+import { getFormatAddress } from "../app/utils";
 
 export interface AllBets extends SingleBetSlip {
   tag?: string;
@@ -142,9 +144,11 @@ export function ProfilePage() {
       });
     }
 
-    return combinedBets.filter((bets) => {
-      return bets.betSelection.length !== 0;
-    });
+    return combinedBets
+      .filter((bets) => {
+        return bets.betSelection.length !== 0;
+      })
+      .reverse();
   }, [userBets, userClaimedBets, userUnclaimedBets, userLostBets]);
 
   // Filter bets based on active tab
@@ -190,8 +194,15 @@ export function ProfilePage() {
 
   return (
     <div className="px-6 py-4 text-white">
-      {/* Header */}
+      <Head>
+        <title>
+          Crossbet - Profile: {getFormatAddress(account?.address!)} - Bet
+          smarter, win faster.
+        </title>
+        <meta name="description" content={`one bet can change everything`} />
+      </Head>
 
+      {/* Header */}
       <Header
         totalWon={totalWon}
         totalWagered={totalWagered}
