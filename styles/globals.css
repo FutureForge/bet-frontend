@@ -13,6 +13,7 @@
   --badge-primary: #3475DA4A;
   --badge-secondary: #E8B9311A;
   --warning: #E8B931;
+  --muted-forground: #898F94;
 }
 .skeleton-el {
   background-image: linear-gradient(

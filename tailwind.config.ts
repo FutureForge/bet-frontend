@@ -21,6 +21,7 @@ const config: Config = {
         stroke: "var(--stroke)",
         secondary: "var(--secondary)",
         muted: "var(--muted)",
+        'muted-foreground': "var(--muted-forground)",
         badge: {
           primary: "var(--badge-primary)",
           secondary: {

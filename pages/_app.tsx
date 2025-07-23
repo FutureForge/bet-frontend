@@ -6,6 +6,7 @@ import { Inter, Instrument_Sans } from "next/font/google";
 import { ReactElement, ReactNode } from "react";
 import type { NextPage } from "next";
 import { RootLayout } from "@/modules/app/layout";
+import * as Tooltip from "@radix-ui/react-tooltip";
 
 type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
   getLayout?: (page: ReactElement) => ReactNode;
@@ -35,7 +36,12 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
             }`,
         }}
       />
-      <QueryProvider>{getLayout(<Component {...pageProps} />)}</QueryProvider>
+      <QueryProvider>
+        {" "}
+        <Tooltip.Provider delayDuration={400}>
+          {getLayout(<Component {...pageProps} />)}
+        </Tooltip.Provider>
+      </QueryProvider>
     </ThirdwebProvider>
   );
 }
