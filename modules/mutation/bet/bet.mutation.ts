@@ -37,7 +37,7 @@ export function usePlaceBetMutation() {
       totalOdds: number;
       betSlip: Omit<BetSlip, "userAddress" | "betSlipId" | "blockchain">;
     }) => {
-      console.log({ betType, betSlip });
+      // console.log({ betType, betSlip });
 
       if (!account) {
         throw new Error(`Need to connect wallet to place bet`);
@@ -263,7 +263,7 @@ export function useClaimBetMutation() {
         `${BACKEND_URL}/bets/${id}/claim`
       );
 
-      return updateBetDB.data.data;
+      return updateBetDB.data;
     },
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({

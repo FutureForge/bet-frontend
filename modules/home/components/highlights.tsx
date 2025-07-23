@@ -38,8 +38,6 @@ export default function Highlights() {
   };
   const router = useRouter();
 
-  console.log({allFixtures})
-
   const handleFixtureClick = (id: number) => {
     router.push(`/matches/${id}`);
     console.log(`Navigating to match with ID: ${id}`);
@@ -50,7 +48,12 @@ export default function Highlights() {
 
   const { groupedByDate, tabs, sortedDateKeys, defaultTab } = useMemo(() => {
     if (!allFixtures)
-      return { groupedByDate: {}, tabs: [], sortedDateKeys: [], defaultTab: "Today" };
+      return {
+        groupedByDate: {},
+        tabs: [],
+        sortedDateKeys: [],
+        defaultTab: "Today",
+      };
 
     const dateMap: Record<string, Record<string, Fixture[]>> = {};
 
@@ -96,7 +99,8 @@ export default function Highlights() {
     let defaultTab = "Today";
     if (allDates.length > 0) {
       const firstDate = allDates[0];
-      defaultTab = firstDate === today ? "Today" : dayjs(firstDate).format("MMM DD");
+      defaultTab =
+        firstDate === today ? "Today" : dayjs(firstDate).format("MMM DD");
     }
 
     return {
@@ -232,35 +236,49 @@ export default function Highlights() {
     if (mode === "single") {
       selections.forEach((selection) => {
         if (selection.stake && selection.stake > 0) {
-          placeBetMutate({
-            betType: "single",
-            totalOdds: selection.odds, // Use individual odds for single bets
-            betSlip: {
-              totalBetAmount: selection.stake,
-              selections: [
-                {
-                  matchId: selection.matchId,
-                  oddsAtPlacement: selection.odds,
-                  selectedOutcome: selection.selectedOutcome,
-                },
-              ],
+          placeBetMutate(
+            {
+              betType: "single",
+              totalOdds: selection.odds, // Use individual odds for single bets
+              betSlip: {
+                totalBetAmount: selection.stake,
+                selections: [
+                  {
+                    matchId: selection.matchId,
+                    oddsAtPlacement: selection.odds,
+                    selectedOutcome: selection.selectedOutcome,
+                  },
+                ],
+              },
             },
-          });
+            {
+              onSuccess(data, variables, context) {
+                clearSelections();
+              },
+            }
+          );
         }
       });
     } else {
-      placeBetMutate({
-        betType: "multiple",
-        totalOdds: totalOdds,
-        betSlip: {
-          totalBetAmount: totalStake,
-          selections: selections.map((sel) => ({
-            matchId: sel.matchId,
-            oddsAtPlacement: sel.odds,
-            selectedOutcome: sel.selectedOutcome,
-          })),
+      placeBetMutate(
+        {
+          betType: "multiple",
+          totalOdds: totalOdds,
+          betSlip: {
+            totalBetAmount: totalStake,
+            selections: selections.map((sel) => ({
+              matchId: sel.matchId,
+              oddsAtPlacement: sel.odds,
+              selectedOutcome: sel.selectedOutcome,
+            })),
+          },
         },
-      });
+        {
+          onSuccess(data, variables, context) {
+            clearSelections();
+          },
+        }
+      );
     }
   };
 
@@ -285,8 +303,12 @@ export default function Highlights() {
         {tabs.length === 0 ? (
           <div className="flex items-center justify-center h-[600px]">
             <div className="text-center">
-              <p className="text-gray-400 text-lg mb-2">No fixtures available</p>
-              <p className="text-gray-500 text-sm">There are no matches scheduled at the moment</p>
+              <p className="text-gray-400 text-lg mb-2">
+                No fixtures available
+              </p>
+              <p className="text-gray-500 text-sm">
+                There are no matches scheduled at the moment
+              </p>
             </div>
           </div>
         ) : (
@@ -306,17 +328,26 @@ export default function Highlights() {
                     {Object.keys(groupedByDate[dateKey] || {}).length === 0 ? (
                       <div className="flex items-center justify-center h-[400px]">
                         <div className="text-center">
-                          <p className="text-gray-400 text-lg mb-2">No fixtures available</p>
-                          <p className="text-gray-500 text-sm">There are no matches scheduled for this date</p>
+                          <p className="text-gray-400 text-lg mb-2">
+                            No fixtures available
+                          </p>
+                          <p className="text-gray-500 text-sm">
+                            There are no matches scheduled for this date
+                          </p>
                         </div>
                       </div>
                     ) : (
                       Object.entries(groupedByDate[dateKey] || {}).map(
                         ([countryName, matches]) => (
-                          <div key={countryName} className="rounded-lg p-4 bg-card">
+                          <div
+                            key={countryName}
+                            className="rounded-lg p-4 bg-card"
+                          >
                             {/* COUNTRY HEADER + 1 X 2 HEADING */}
                             <div className="flex justify-between px-3 bg-primary py-2.5 rounded-tr-xl rounded-tl-xl text-sm mb-2">
-                              <span className="font-semibold">{countryName}</span>
+                              <span className="font-semibold">
+                                {countryName}
+                              </span>
                               <div className="grid grid-cols-3 gap-4 w-1/2 text-center">
                                 <span>1</span>
                                 <span>X</span>
@@ -378,7 +409,8 @@ export default function Highlights() {
                                         : match.prediction?.odds?.away;
 
                                     // Validate odds value
-                                    const isValidOdds = oddsValue && oddsValue > 0;
+                                    const isValidOdds =
+                                      oddsValue && oddsValue > 0;
 
                                     const isSelected = selections.some(
                                       (sel) =>
@@ -413,7 +445,9 @@ export default function Highlights() {
                                         }`}
                                       >
                                         <span className="font-semibold text-lg">
-                                          {isValidOdds ? oddsValue.toFixed(2) : "-"}
+                                          {isValidOdds
+                                            ? oddsValue.toFixed(2)
+                                            : "-"}
                                         </span>
                                         <span className="text-sm">
                                           {option.key === "draw"

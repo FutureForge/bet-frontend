@@ -10,6 +10,14 @@ export type User = {
   totalWon: number;
   winCount: number;
   lossCount: number;
+  crossfiTotalWagered: number;
+  crossfiTotalWon: number;
+  crossfiWinCount: number;
+  crossfiLossCount: number;
+  bnbTotalWagered: number;
+  bnbTotalWon: number;
+  bnbWinCount: number;
+  bnbLossCount: number;
   createdAt: string;
   lastActiveAt: string;
   updatedAt: string;

@@ -12,7 +12,7 @@ import axios from "axios";
 import { BetSlipResponse } from "@/utils/types/bet/bets.type";
 import { User, UserResponse } from "@/utils/types/user/user.types";
 
-const customUserAddress = "0xa1f91a0E64AB09B985C4d5Ac30e652a7F6c0B2a6"
+const customUserAddress = "0xa1f91a0E64AB09B985C4d5Ac30e652a7F6c0B2a6";
 
 export function useUserChainInfo() {
   const account = useActiveAccount();
@@ -43,11 +43,11 @@ export function useUserNativeBalance() {
   } = useWalletBalance(
     {
       chain: chainInfo,
-      address: customUserAddress,
+      address: userAddress,
       client,
     },
     {
-      enabled: !!userAddress && !!activeChain?.id,
+      enabled: !!userAddress,
       refetchInterval: 5000,
     }
   );

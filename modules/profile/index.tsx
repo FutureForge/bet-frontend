@@ -18,6 +18,7 @@ import { useRouter } from "next/router";
 import { User } from "@/utils/types/user/user.types";
 import { SingleBetSlip } from "@/utils/types/bet/bets.type";
 import { Header } from "./components/header";
+import { getActiveChainDetails } from "@/utils/configs/global";
 
 export interface AllBets extends SingleBetSlip {
   tag?: string;
@@ -32,6 +33,7 @@ type Tab =
   | "unclaimed"
   | "won"
   | "lost";
+
 function EmptyTabMessage({ tab }: { tab: Tab }) {
   const copy: Record<Tab, string> = {
     all: "You haven’t placed any bets yet.",
@@ -50,13 +52,39 @@ function EmptyTabMessage({ tab }: { tab: Tab }) {
   );
 }
 export function ProfilePage() {
-  const { account } = useUserChainInfo();
+  const { account, activeChain } = useUserChainInfo();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<Tab>("all");
 
+  const { logo: chainLogo, symbol: chainSymbol } = getActiveChainDetails(
+    activeChain?.id
+  );
+
   const { data: userDBInfo } = useUserDBQuery();
-  const { totalWon, totalWagered, lossCount, winCount } =
-    (userDBInfo as User) || {};
+  const {
+    crossfiTotalWagered,
+    crossfiTotalWon,
+    crossfiWinCount,
+    crossfiLossCount,
+    bnbTotalWagered,
+    bnbTotalWon,
+    bnbWinCount,
+    bnbLossCount,
+  } = (userDBInfo as User) || {};
+
+  let winCount, lossCount, totalWagered, totalWon;
+
+  if (chainSymbol === "XFI") {
+    (winCount = crossfiWinCount),
+      (lossCount = crossfiLossCount),
+      (totalWagered = crossfiTotalWagered),
+      (totalWon = crossfiTotalWon);
+  } else {
+    winCount = bnbWinCount;
+    lossCount = bnbLossCount;
+    totalWagered = bnbTotalWagered;
+    totalWon = bnbTotalWon;
+  }
 
   const { data: userLostBets, isLoading: isUserLostBetsLoading } =
     useUserLostBetsQuery();
@@ -164,7 +192,11 @@ export function ProfilePage() {
     <div className="px-6 py-4 text-white">
       {/* Header */}
 
-      <Header />
+      <Header
+        totalWon={totalWon}
+        totalWagered={totalWagered}
+        chainSymbol={chainSymbol}
+      />
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">My Bets</h1>
       </div>

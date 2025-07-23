@@ -1,21 +1,29 @@
 import React from "react";
 import InfoIcon from "@/assets/Info.svg";
 
-export function Header() {
+export function Header({
+  totalWagered = 0,
+  totalWon = 0,
+  chainSymbol,
+}: {
+  totalWon: number;
+  totalWagered: number;
+  chainSymbol: string
+}) {
   const isLoading = false; // Replace with actual loading state from query
   const headerStats = [
     {
-      label: "Total Staked",
-      value: 5435,
+      label: "Total Wagered",
+      value: totalWagered,
     },
     {
-      label: "Total Wins",
-      value: 5435,
+      label: "Total Won",
+      value: totalWon,
     },
-    {
-      label: "Total Losses",
-      value: 5435,
-    },
+    // {
+    //   label: "Total Losses",
+    //   value: 5435,
+    // },
   ];
   return (
     <div className="mb-4 border-b border-b-stroke pb-4">
@@ -29,7 +37,7 @@ export function Header() {
                 {stat.label} <InfoIcon />
               </div>
               <div className="text-2xl font-semibold text-white">
-                {stat.value.toLocaleString()}XFI
+                {stat.value.toLocaleString()} {chainSymbol}
               </div>
             </div>
           ))}
