@@ -13,22 +13,23 @@ import {
   useUserUnclaimedBetsQuery,
 } from "@/modules/query";
 import { Button } from "@/modules/app/component/button";
+import { useRouter } from "next/router";
 
-type BetStatus = "Running" | "Won" | "Lost" | "Cancelled";
+export type BetStatus = "Running" | "Won" | "Lost" | "Cancelled";
 type Chain = "bsc" | "crossfi";
 
 interface BetCardProps extends SingleBetSlip {
   tag?: string;
   status?: string;
 }
-
+export const statusColorMap: Record<BetStatus, string> = {
+  Running: "secondary",
+  Won: "green",
+  Lost: "red",
+  Cancelled: "indigo",
+};
 export function BetCard(bet: BetCardProps) {
-  const statusColorMap: Record<BetStatus, string> = {
-    Running: "secondary",
-    Won: "green",
-    Lost: "red",
-    Cancelled: "indigo",
-  };
+  const router = useRouter();
 
   const mode = bet.betSlip.betSlipResult === "pending" ? "Single" : "Multiple";
   const status =
@@ -102,8 +103,12 @@ export function BetCard(bet: BetCardProps) {
       return bets.betSelection.length !== 0;
     });
   }, [userBets, userClaimedBets, userUnclaimedBets, userLostBets]);
+
+  const handleClick = () => {
+    router.push(`/profile/${bet.betSlip._id}`);
+  };
   return (
-    <div className="max-h-[140px] h-full w-full">
+    <div className="max-h-[140px] h-full w-full cursor-pointer">
       <div className="bg-primary rounded-tr-xl rounded-tl-xl py-2.5 px-3 flex items-center justify-between">
         <div className="flex items-center gap-2 font-medium">
           <Badge color="primary" className="text-xs font-semibold">
@@ -123,7 +128,12 @@ export function BetCard(bet: BetCardProps) {
           <p className="text-muted">
             {new Date(bet.betSlip.placedAt).toLocaleTimeString()}
           </p>
-          <p className="underline cursor-pointer">Details</p>
+          <div
+            onClick={handleClick}
+            className="underline cursor-pointer hover:text-secondary transition-all duration-300 ease-in-out"
+          >
+            Details
+          </div>
         </div>
       </div>
       <div className="bg-white/10 rounded-br-xl rounded-bl-xl p-4 flex items-center justify-between h-full">

@@ -58,14 +58,14 @@ export function Nav() {
     >
       <div
         className={cn(
-          "flex py-3 h-20 w-full md:px-8 px-4 gap-4 justify-between items-center font-instrument max-w-[1440px] mx-auto"
+          "flex py-3 h-20 w-full gap-4 justify-between items-center font-instrument max-w-[1440px] mx-auto"
         )}
       >
         <Link href="/" className="flex items-center gap-2">
           <Logo className="size-10" />
           <LogoText className="hidden md:inline w-[140px] ml-2" />
         </Link>
-        <div className="lg:w-1/3 w-1/2 flex lg:items-center justify-end lg:gap-6 gap-2">
+        <div className="lg:w-1/2 w-1/2 flex lg:items-center justify-end lg:gap-6 gap-2">
           {!account?.address ? (
             <ConnectButton
               client={client}

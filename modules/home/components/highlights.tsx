@@ -275,6 +275,7 @@ export default function Highlights() {
         },
         {
           onSuccess(data, variables, context) {
+            totalStake:''
             clearSelections();
           },
         }
@@ -324,7 +325,7 @@ export default function Highlights() {
             {sortedDateKeys.map((dateKey, idx) => (
               <TabsContent key={dateKey} value={tabs[idx]} className="mt-4">
                 <ScrollArea.Root className="h-[600px]">
-                  <div className="flex flex-col gap-6 max-h-[600px] scrollbar scrollbar-thin">
+                  <div className="flex flex-col gap-6 max-h-[600px] scrollbar-thin">
                     {Object.keys(groupedByDate[dateKey] || {}).length === 0 ? (
                       <div className="flex items-center justify-center h-[400px]">
                         <div className="text-center">
@@ -525,7 +526,7 @@ export default function Highlights() {
                 </div>
 
                 <ScrollArea.Root>
-                  <div className="h-[330px] overflow-y-auto scrollbar-hide scrollbar scrollbar-thin scrollbar-none pb-20">
+                  <div className="h-[330px] overflow-y-auto scrollbar-hide scrollbar-thin scrollbar-none pb-20">
                     {selections.length === 0 ? (
                       <EmptyMessage />
                     ) : (
@@ -570,7 +571,7 @@ export default function Highlights() {
                             <div className="px-4 pb-2">
                               <input
                                 type="number"
-                                className="w-full rounded-md border border-gray-700 bg-background px-2 py-1 text-sm"
+                                className="w-full rounded-md border border-gray-700 bg-background px-2 py-1 text-sm hide-arrows"
                                 placeholder="Enter stake"
                                 value={sel.stake || ""}
                                 onChange={(e) =>
@@ -601,7 +602,7 @@ export default function Highlights() {
                 </div>
 
                 <ScrollArea.Root>
-                  <div className="h-[330px] overflow-y-auto scrollbar-hide scrollbar scrollbar-thin scrollbar-none pb-20">
+                  <div className="h-[330px] overflow-y-auto scrollbar-hide scrollbar-thin scrollbar-none pb-20">
                     {selections.length === 0 ? (
                       <EmptyMessage />
                     ) : (
@@ -656,7 +657,7 @@ export default function Highlights() {
                 <div className="p-4 pb-0">
                   <input
                     type="number"
-                    className="w-full rounded-md border border-gray-700 bg-background px-2 py-1 text-sm"
+                    className="w-full rounded-md border border-gray-700 bg-background px-2 py-1 text-sm hide-arrows"
                     placeholder="Enter total stake"
                     value={totalStake || ""}
                     onChange={(e) => updateTotalStake(Number(e.target.value))}
