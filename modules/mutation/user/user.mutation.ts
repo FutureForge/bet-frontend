@@ -19,9 +19,19 @@ export function useSwitchChainMutation() {
         throw new Error("Chain info needed");
       }
 
-      return switchActiveChain(chainInfo);
+      try {
+        const result = await switchActiveChain(chainInfo);
+        return result;
+      } catch (error) {
+        // console.error("Failed to switch chain:", error);
+        // throw new Error(`Failed to switch to ${chain} chain: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      }
     },
-    onSuccess: (data, variables, context) => {},
-    onError: (error, variables, context) => {},
+    onSuccess: (data, variables, context) => {
+      console.log(`Successfully switched to ${variables.chain} chain`);
+    },
+    onError: (error, variables, context) => {
+      // console.error(`Failed to switch to ${variables.chain} chain:`, error);
+    },
   });
 }

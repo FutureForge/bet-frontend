@@ -18,9 +18,18 @@ import {
 } from "thirdweb";
 import BetContractABI from "@/modules/blockchain/abi/bet-contract.json";
 import axios from "axios";
-import { BACKEND_URL } from "@/utils/configs";
+import { BACKEND_URL, client } from "@/utils/configs";
 import { BetPlaced, SingleBetSlip } from "@/utils/types/bet/bets.type";
 import { queryKeys } from "@/modules/query/query-keys";
+import { useSwitchChainMutation } from "../user/user.mutation";
+
+// Utility function to wait for chain switch
+const waitForChainSwitch = async (
+  delayMs: number = 2000
+): Promise<void> => {
+  // Wait for the chain switch to propagate
+  await new Promise(resolve => setTimeout(resolve, delayMs));
+};
 
 export function usePlaceBetMutation() {
   const queryClient = useQueryClient();
@@ -60,7 +69,7 @@ export function usePlaceBetMutation() {
 
         // Convert decimal odds to integer format (multiply by 100 to preserve 2 decimal places)
         const oddsAsInteger = Math.round(totalOdds * 100);
-        
+
         const transaction = prepareContractCall({
           contract: betContract,
           method:
@@ -79,7 +88,8 @@ export function usePlaceBetMutation() {
         }
 
         const event = transactionReceipt.logs.find(
-          (log) => log.address.toLowerCase() === betContract.address.toLowerCase()
+          (log) =>
+            log.address.toLowerCase() === betContract.address.toLowerCase()
         );
 
         if (!event) {
@@ -120,16 +130,16 @@ export function usePlaceBetMutation() {
       } else {
         // Handle single bet type - process each selection individually
         const betResults = [];
-        
+
         // Process each selection as a separate transaction
         for (let i = 0; i < betSlip.selections.length; i++) {
           const selection = betSlip.selections[i];
           const matchIds = [BigInt(selection.matchId.toString())];
           const selectionOdds = selection.oddsAtPlacement;
-          
+
           // Convert decimal odds to integer format (multiply by 100 to preserve 2 decimal places)
           const oddsAsInteger = Math.round(selectionOdds * 100);
-          
+
           const transaction = prepareContractCall({
             contract: betContract,
             method:
@@ -148,11 +158,14 @@ export function usePlaceBetMutation() {
           }
 
           const event = transactionReceipt.logs.find(
-            (log: any) => log.address.toLowerCase() === betContract.address.toLowerCase()
+            (log: any) =>
+              log.address.toLowerCase() === betContract.address.toLowerCase()
           );
 
           if (!event) {
-            throw new Error(`BetPlaced event not found in transaction logs for bet ${i + 1}`);
+            throw new Error(
+              `BetPlaced event not found in transaction logs for bet ${i + 1}`
+            );
           }
 
           const data = event.data;
@@ -179,11 +192,13 @@ export function usePlaceBetMutation() {
             betSlipId: betPlacedEvent.betId,
             totalBetAmount: betSlip.totalBetAmount,
             blockchain: chain?.chain,
-            selections: [{
-              matchId: betSlip.selections[i].matchId,
-              selectedOutcome: betSlip.selections[i].selectedOutcome,
-              oddsAtPlacement: betSlip.selections[i].oddsAtPlacement,
-            }],
+            selections: [
+              {
+                matchId: betSlip.selections[i].matchId,
+                selectedOutcome: betSlip.selections[i].selectedOutcome,
+                oddsAtPlacement: betSlip.selections[i].oddsAtPlacement,
+              },
+            ],
           });
 
           betResults.push(saveBetToDb);
@@ -191,7 +206,6 @@ export function usePlaceBetMutation() {
 
         return betResults;
       }
-      
     },
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.bets.bets });
@@ -202,11 +216,14 @@ export function usePlaceBetMutation() {
   });
 }
 
-// TODO: make sure the bet they want to claim aligns with the right blockchain so we call the right contract
+// Fixed: Chain switching now properly waits for the switch to complete before proceeding with the transaction
+// This ensures the correct contract is used for the target chain
 
 export function useClaimBetMutation() {
   const queryClient = useQueryClient();
   const { account, activeChain } = useUserChainInfo();
+
+  const switchChain = useSwitchChainMutation();
 
   //6870311edf273038533398fc
 
@@ -225,22 +242,33 @@ export function useClaimBetMutation() {
       rewardAmount: number;
     }) => {
       if (!account) {
-        throw new Error(`Need to connect wallet to place bet`);
-      }
-
-      if (!activeChain?.id) {
-        throw new Error(`Need to connect wallet to place bet`);
+        throw new Error(`Need to connect wallet to claim bet`);
       }
 
       const selectedChain = chains.find((selChain) => selChain.chain === chain);
 
       if (!selectedChain) {
-        throw new Error(`Need a selected chain to claim`);
+        throw new Error(`Invalid chain: ${chain}`);
       }
 
-      const reward = ethers.parseEther(rewardAmount.toString());
+      // Check if we're already on the correct chain
+      const isOnCorrectChain = activeChain?.id === selectedChain.id;
+
+      if (!isOnCorrectChain) {
+        // Switch to the correct chain and wait for it to complete
+        await switchChain.mutateAsync({
+          chain: selectedChain.chain as Chains,
+        });
+
+        // Wait for the chain switch to propagate
+        await waitForChainSwitch(2000);
+      }
+
+      // Get the chain info and contract for the target chain (not the current active chain)
+      const chainInfo = getChainInfoById(selectedChain.id);
       const betContract = getBetContractActiveChain(selectedChain.id);
 
+      const reward = ethers.parseEther(rewardAmount.toString());
       // claim from blockchain logic
       const transaction = prepareContractCall({
         contract: betContract,
