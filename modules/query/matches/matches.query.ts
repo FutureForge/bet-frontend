@@ -30,7 +30,7 @@ export function useGetAllFixtureQuery() {
   });
 }
 
-export function useGetSingleFixtureQuery(fixtureId: string) {
+export function useGetSingleFixtureQuery(fixtureId: number) {
   return useQuery({
     queryKey: [queryKeys.matches.single, { fixtureId }],
     queryFn: async () => {
@@ -47,6 +47,6 @@ export function useGetSingleFixtureQuery(fixtureId: string) {
       return fixture.data;
     },
     enabled: !!fixtureId,
-    refetchInterval: 15000,
+    refetchInterval: 5000,
   });
 }

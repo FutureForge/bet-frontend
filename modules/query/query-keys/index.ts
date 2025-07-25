@@ -12,5 +12,6 @@ export const queryKeys = {
     unclaimed: ["unclaimed-bet"] as const,
     claimed: ["claimed-bet"] as const,
     bets: ["bets"] as const,
+    singleBet: ["single-bet"] as const,
   },
 };

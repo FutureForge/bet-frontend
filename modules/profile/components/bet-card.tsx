@@ -86,7 +86,7 @@ export function BetCard(bet: BetCardProps) {
         </div>
       </div>
       <div className="bg-white/10 rounded-br-xl rounded-bl-xl p-4 flex items-center justify-between h-full">
-        <div className="flex-1">
+        <div className="flex-1" onClick={handleClick}>
           <p className="text-sm whitespace-pre-line">
             {bet.betSelection.length > 0 &&
               (bet.betSelection.length === 1

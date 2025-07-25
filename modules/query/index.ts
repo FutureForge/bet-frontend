@@ -1,5 +1,6 @@
 export * from "./user/user.query";
 export * from "./matches/matches.query";
+export * from './bet/bet.query'
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
