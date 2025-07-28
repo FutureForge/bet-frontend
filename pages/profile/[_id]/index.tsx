@@ -4,12 +4,11 @@ import {
   statusColorMap,
 } from "@/modules/profile/components/bet-card";
 import { useRouter } from "next/router";
-import XFI from "@/assets/xfi.svg";
 import Back from "@/assets/back.svg";
 import React from "react";
 import { useGetSingleFixtureQuery, useSingleBetQuery } from "@/modules/query";
 import { getActiveChainDetails } from "@/utils/configs/global";
-import { Chains, chains } from "@/modules/blockchain";
+import { chains } from "@/modules/blockchain";
 import Head from "next/head";
 
 export default function BetPage() {
@@ -238,7 +237,9 @@ function SingleBet({
               >
                 {homeTeam}
               </button>
-              <p className="text-sm whitespace-pre-line text-right">click to view score</p>
+              <p className="text-sm whitespace-pre-line text-right">
+                click to view score
+              </p>
             </div>
 
             <div className="flex items-center justify-between gap-2 font-medium mb-2 w-48">
@@ -248,7 +249,9 @@ function SingleBet({
               >
                 {awayTeam}
               </button>
-              <p className="text-sm whitespace-pre-line text-right">click to view score</p>
+              <p className="text-sm whitespace-pre-line text-right">
+                click to view score
+              </p>
             </div>
           </div>
         </div>
