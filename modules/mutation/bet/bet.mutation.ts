@@ -213,6 +213,20 @@ export function usePlaceBetMutation() {
     onError: (error, variables, context) => {
       // Handle error
     },
+    meta: {
+      loadingMessage: {
+        title: "Placing Bet",
+        description: "Processing your bet transaction on the blockchain...",
+      },
+      successMessage: {
+        title: "Bet Placed Successfully",
+        description: "Your bet has been placed and confirmed on the blockchain!",
+      },
+      errorMessage: {
+        title: "Bet Placement Failed",
+        description: "Failed to place your bet. Please try again.",
+      },
+    },
   });
 }
 
@@ -299,5 +313,19 @@ export function useClaimBetMutation() {
       });
     },
     onError: (error, variables, context) => {},
+    meta: {
+      loadingMessage: {
+        title: "Claiming Bet",
+        description: "Processing your bet claim transaction...",
+      },
+      successMessage: {
+        title: "Bet Claimed Successfully",
+        description: "Your winnings have been claimed and transferred to your wallet!",
+      },
+      errorMessage: {
+        title: "Bet Claim Failed",
+        description: "Failed to claim your bet. Please try again.",
+      },
+    },
   });
 }

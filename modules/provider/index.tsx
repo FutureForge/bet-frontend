@@ -10,6 +10,21 @@ type QueryProviderProps = {
   children: ReactNode;
 };
 
+type MutationMeta = {
+  successMessage?: {
+    title?: string;
+    description: string;
+  };
+  errorMessage?: {
+    title?: string;
+    description: string;
+  };
+  loadingMessage?: {
+    title?: string;
+    description: string;
+  };
+};
+
 export function QueryProvider({ children }: QueryProviderProps) {
   const toast = useToast();
 
@@ -18,50 +33,50 @@ export function QueryProvider({ children }: QueryProviderProps) {
       new QueryClient({
         defaultOptions: { queries: { retry: 0 } },
         mutationCache: new MutationCache({
-          onMutate: () => {
-            // toast.loading("Transaction In Process...", { duration: 30000 });
+          onMutate: (variables, mutation) => {
+            console.log("on mutate", { variables, mutation });
+            const meta = mutation.options.meta as MutationMeta;
+
+            if (meta?.loadingMessage) {
+              toast.loading(meta.loadingMessage.description, {
+                title: meta.loadingMessage.title || "Processing...",
+                duration: Infinity,
+              });
+            }
           },
-          onSuccess: (_data, _variables, _context, mutation) => {
-            console.log(
-              "query provider success",
-              _data,
-              _variables,
-              _context,
-              mutation
-            );
+          onSuccess: (data, variables, context, mutation) => {
+            console.log({ data, variables, context, mutation });
 
-            // const successMessage = mutation?.meta?.successMessage as {
-            //   title?: string;
-            //   description: string;
-            // };
+            const meta = mutation.options.meta as MutationMeta;
 
-            // toast.success(
-            //   successMessage
-            //     ? successMessage.description
-            //     : "Transaction was Successful",
-            //   {
-            //     duration: 5000,
-            //   }
-            // );
+            if (meta?.successMessage) {
+              toast.success(meta.successMessage.description, {
+                title: meta.successMessage.title || "Success",
+                duration: 5000,
+              });
+            }
           },
-          onError: (error, _variables, _context, mutation) => {
-            console.log("query provider error: ", error, _variables);
+          onError: (error, variables, context, mutation) => {
+            console.log({ error, variables, context, mutation });
 
-            // const errorMessage = mutation?.meta?.errorMessage as {
-            //   title?: string;
-            //   description: string;
-            // };
+            const meta = mutation.options.meta as MutationMeta;
 
-            // console.log({ errorMessage, error })
-
-            // toast.error(
-            //   errorMessage
-            //     ? `${errorMessage.description} ${error.message}`
-            //     : error.message,
-            //   {
-            //     duration: 5000,
-            //   }
-            // );
+            if (meta?.errorMessage) {
+              toast.error(meta.errorMessage.description, {
+                title: meta.errorMessage.title || "Error",
+                duration: 7000,
+              });
+            } else if (error instanceof Error) {
+              toast.error(error.message, {
+                title: "Error",
+                duration: 7000,
+              });
+            } else {
+              toast.error("An unexpected error occurred", {
+                title: "Error",
+                duration: 7000,
+              });
+            }
           },
         }),
       })

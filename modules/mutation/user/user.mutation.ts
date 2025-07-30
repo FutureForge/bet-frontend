@@ -33,5 +33,19 @@ export function useSwitchChainMutation() {
     onError: (error, variables, context) => {
       // console.error(`Failed to switch to ${variables.chain} chain:`, error);
     },
+    meta: {
+      loadingMessage: {
+        title: "Switching Network",
+        description: "Connecting to the selected blockchain network...",
+      },
+      successMessage: {
+        title: "Network Switched",
+        description: "Successfully connected to the new network!",
+      },
+      errorMessage: {
+        title: "Network Switch Failed",
+        description: "Failed to switch networks. Please try again.",
+      },
+    },
   });
 }

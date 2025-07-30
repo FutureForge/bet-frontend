@@ -8,7 +8,17 @@ export default function Toast() {
         className="pointer-events-auto"
         visibleToasts={5}
         position="top-right"
-        gap={14}
+        gap={16}
+        toastOptions={{
+          duration: 5000,
+          style: {
+            background: 'transparent',
+            border: 'none',
+            padding: 0,
+            margin: 0,
+            boxShadow: 'none',
+          },
+        }}
       />
     </Portal.Root>
   );
