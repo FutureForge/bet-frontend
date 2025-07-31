@@ -4,6 +4,7 @@ import axios from "axios";
 import { BACKEND_URL } from "@/utils/configs";
 import {
   FootballData,
+  SingleFixtureAPIResponse,
   SingleFootballData,
 } from "@/utils/types/matches/matches.type";
 
@@ -30,13 +31,13 @@ export function useGetAllFixtureQuery() {
   });
 }
 
-export function useGetSingleFixtureQuery(fixtureId: number) {
+export function useGetSingleFixtureQuery(fixtureId: string) {
   return useQuery({
     queryKey: [queryKeys.matches.single, { fixtureId }],
     queryFn: async () => {
-      const res = await axios.get<SingleFootballData>(
-        `${BACKEND_URL}/matches/${fixtureId}`
-      );
+      const res = await axios.get<SingleFixtureAPIResponse>(`${BACKEND_URL}/matches/${fixtureId}`);
+
+      console.log({res})
 
       const fixture = res.data;
 

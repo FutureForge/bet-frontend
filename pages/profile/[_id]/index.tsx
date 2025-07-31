@@ -219,8 +219,7 @@ function SingleBet({
   outcome,
   router,
 }: SingleBetProps) {
-  const { data: singleFixture } = useGetSingleFixtureQuery(matchId);
-  console.log({ singleFixture });
+  const { data: singleFixture } = useGetSingleFixtureQuery(matchId.toString());
 
   return (
     <div className="bg-white/10 rounded-xl p-4 flex items-center justify-between h-full">
@@ -237,9 +236,9 @@ function SingleBet({
               >
                 {homeTeam}
               </button>
-              <p className="text-sm whitespace-pre-line text-right">
+              {/* <p className="text-sm whitespace-pre-line text-right">
                 click to view score
-              </p>
+              </p> */}
             </div>
 
             <div className="flex items-center justify-between gap-2 font-medium mb-2 w-48">
@@ -249,9 +248,9 @@ function SingleBet({
               >
                 {awayTeam}
               </button>
-              <p className="text-sm whitespace-pre-line text-right">
+              {/* <p className="text-sm whitespace-pre-line text-right">
                 click to view score
-              </p>
+              </p> */}
             </div>
           </div>
         </div>

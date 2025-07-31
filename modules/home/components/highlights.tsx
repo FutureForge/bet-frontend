@@ -39,7 +39,7 @@ export default function Highlights() {
   const router = useRouter();
 
   const handleFixtureClick = (id: number) => {
-    router.push(`/matches/${id}`);
+    router.push(`/match/${id}`);
     console.log(`Navigating to match with ID: ${id}`);
   };
   const { logo: chainLogo, symbol: chainSymbol } = getActiveChainDetails(

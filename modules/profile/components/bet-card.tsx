@@ -24,7 +24,6 @@ export const statusColorMap: Record<BetStatus, string> = {
 export function BetCard(bet: BetCardProps) {
   const router = useRouter();
   const { betSlip } = bet;
-  console.log({ betSlip });
 
   const mode = bet.betSlip.betSlipResult === "pending" ? "Single" : "Multiple";
   const status =
